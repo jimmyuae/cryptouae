@@ -3,257 +3,255 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>Outside the Order | Binance P2P Case File</title>
-  <meta name="description" content="A cinematic case-file website about an alleged UAE Binance P2P misunderstanding, an off-platform $500 transfer, travel ban, expired Emirates ID, and legal uncertainty." />
-  <link rel="preload" as="image" href="assets/scene01_case_file_opening.png" />
+  <title>Outside the Order | Real-Life Inspired Story</title>
+  <meta name="description" content="A dark cinematic story website inspired by a real-life Binance P2P case in the UAE." />
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
-  <div class="grain"></div>
-  <div class="progress" id="progress"></div>
+  <div id="introOverlay" class="intro-overlay">
+    <div class="intro-panel">
+      <p class="boot-label">CASE FILE LOADING</p>
+      <h1>OUTSIDE THE ORDER</h1>
+      <p class="intro-copy">A real-life inspired dark story experience about one off-platform crypto payment, a refund that never closed the matter, and a life trapped in legal uncertainty.</p>
+      <div class="intro-actions">
+        <button id="startExperience" class="btn btn-primary">Play the Story</button>
+        <button id="skipToRead" class="btn btn-secondary">Read It Myself</button>
+      </div>
+      <p class="micro-note">For the best experience, open in Chrome or Edge and allow audio. Voice playback uses your device’s available human-like browser voice.</p>
+    </div>
+  </div>
 
-  <header class="site-header">
-    <a class="brand" href="#top" aria-label="Outside the Order home">
-      <span class="brand-mark"></span>
-      <span>Outside the Order</span>
-    </a>
-    <nav>
-      <a href="#case">Case</a>
-      <a href="#rules">Rules</a>
-      <a href="#questions">Questions</a>
-      <a href="#evidence">Evidence</a>
-      <a href="#timeline">Timeline</a>
-    </nav>
-  </header>
+  <div class="site-shell">
+    <header class="topbar">
+      <div class="brand-wrap">
+        <span class="brand-mark"></span>
+        <div>
+          <div class="brand-title">Outside the Order</div>
+          <div class="brand-subtitle">Real-Life Inspired Story</div>
+        </div>
+      </div>
+      <nav class="nav-links">
+        <a href="#story">Story</a>
+        <a href="#context">Context</a>
+        <a href="#questions">Questions</a>
+      </nav>
+    </header>
 
-  <main id="top">
-    <section class="hero panel" style="--panel-img:url('assets/scene01_case_file_opening.png')">
-      <div class="hero-overlay"></div>
-      <div class="hero-content reveal">
-        <p class="eyebrow">An anonymized cinematic case file</p>
+    <section class="hero" id="top">
+      <div class="hero-media">
+        <img src="assets/hero_casefile.gif" alt="Dark case file desk animation" />
+      </div>
+      <div class="hero-content">
+        <span class="badge">REAL-LIFE INSPIRED</span>
         <h1>Outside the Order</h1>
-        <p class="subtitle">A $500 off-platform crypto payment. A refund attempt. A police complaint. A travel ban. One and a half years of legal uncertainty.</p>
-        <div class="hero-actions">
-          <a class="btn primary" href="#case">Enter the case</a>
-          <a class="btn ghost" href="#questions">Read the questions</a>
+        <p class="tagline">A dark cinematic story about a Binance P2P misunderstanding, an off-platform 500-dollar transfer, and one and a half years of legal uncertainty.</p>
+        <div class="control-bar">
+          <button id="playBtn" class="btn btn-primary">▶ Play Story</button>
+          <button id="pauseBtn" class="btn btn-secondary">⏸ Pause</button>
+          <button id="readBtn" class="btn btn-secondary">📖 Read Myself</button>
+          <button id="muteFxBtn" class="btn btn-secondary">🔊 FX On</button>
         </div>
-        <p class="disclaimer">This page is a documentary-style narrative based on the seller’s account. It is not legal advice and it is not a court finding.</p>
+        <p class="hero-note">This presentation is based on the seller’s account and is written as a real-life inspired narrative. It is not legal advice and it is not a court finding.</p>
       </div>
     </section>
 
-    <section class="warning-strip reveal">
-      <span>Legal safety note:</span>
-      Use anonymized visuals. Do not publish real names, phone numbers, IDs, case numbers, police/court logos, or private documents without legal review.
-    </section>
-
-    <section id="case" class="section intro-grid">
-      <div class="copy reveal">
-        <p class="eyebrow">The central conflict</p>
-        <h2>Was it a crime, or a misunderstanding trapped inside procedure?</h2>
-        <p>The seller says the first Binance-style P2P transaction was completed normally. Days later, the same buyer sent about <strong>$500</strong> directly to the seller’s bank account without creating a new platform order.</p>
-        <p>The seller says no crypto was released for the second payment. He says he agreed to refund the money, but the buyer was not saved as a bank beneficiary and the refund could not happen instantly.</p>
-      </div>
-      <figure class="image-card reveal">
-        <img src="assets/scene05_bank_transfer_500.png" alt="Cinematic phone scene representing a $500 bank transfer" />
-        <figcaption>The second transfer happened outside the platform order system, according to the seller.</figcaption>
-      </figure>
-    </section>
-
-    <section class="chapter-grid section">
-      <article class="chapter reveal">
-        <img src="assets/scene03_crypto_kiosk_generated.png" alt="Public crypto kiosk scene" />
+    <section class="cinematic-strip">
+      <div class="strip-card">
+        <img src="assets/skyline_loop.gif" alt="UAE skyline animation" />
         <div>
-          <p class="eyebrow">Perception</p>
-          <h3>A public crypto machine</h3>
-          <p>According to the seller, his first crypto experience came through a public machine or kiosk. That shaped his belief that crypto activity was visible and accessible, not hidden.</p>
+          <h3>A visible crypto world</h3>
+          <p>The story begins in a place where crypto looked public, visible, and ordinary.</p>
+        </div>
+      </div>
+      <div class="strip-card">
+        <img src="assets/transfer_alert.gif" alt="Transfer alert animation" />
+        <div>
+          <h3>One transfer outside the order</h3>
+          <p>About 500 dollars arrived directly in a bank account, but there was no new platform order.</p>
+        </div>
+      </div>
+      <div class="strip-card">
+        <img src="assets/custody_loop.gif" alt="Custody room animation" />
+        <div>
+          <h3>A short custody, a long consequence</h3>
+          <p>One day in custody turned into a travel ban, work permit trouble, and an expired Emirates ID.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="story" class="story-section">
+      <div class="section-head">
+        <p class="eyebrow">Interactive Story</p>
+        <h2>Play it like a cinematic case file, or read it yourself</h2>
+      </div>
+
+      <article class="story-card active" id="seg-1" data-seg="1">
+        <div class="story-visual"><img src="assets/kiosk_loop.gif" alt="Crypto kiosk animation"></div>
+        <div class="story-copy">
+          <h3>1. A public beginning</h3>
+          <p>This is the story of a man in the UAE who says he was not a criminal, not a money launderer, and not someone trying to escape responsibility. He says his first experience with crypto came from a public machine or kiosk. To him, that made crypto look openly available, not hidden or underground.</p>
         </div>
       </article>
-      <article class="chapter reveal">
-        <img src="assets/scene04_first_p2p_transaction.png" alt="Generic P2P transaction screen" />
-        <div>
-          <p class="eyebrow">First order</p>
-          <h3>The completed P2P trade</h3>
-          <p>The first transaction was inside the platform order flow: payment received, confirmation made, crypto released, order completed.</p>
+
+      <article class="story-card" id="seg-2" data-seg="2">
+        <div class="story-visual"><img src="assets/scene_p2p.png" alt="Completed P2P transaction scene"></div>
+        <div class="story-copy">
+          <h3>2. The first normal trade</h3>
+          <p>Later, he used Binance P2P. The first transaction was normal. The order was created inside the platform, the buyer paid, the seller confirmed payment, and the crypto was released. There was no complaint, no warning, and no dispute.</p>
         </div>
       </article>
-      <article class="chapter reveal">
-        <img src="assets/scene06_buyer_message.png" alt="Blurred buyer message scene" />
-        <div>
-          <p class="eyebrow">Second payment</p>
-          <h3>No new order</h3>
-          <p>Days later, the buyer allegedly sent money directly to the bank account, then messaged the seller saying it was for crypto.</p>
+
+      <article class="story-card" id="seg-3" data-seg="3">
+        <div class="story-visual"><img src="assets/scene_transfer.png" alt="500 dollar transfer scene"></div>
+        <div class="story-copy">
+          <h3>3. The second transfer</h3>
+          <p>Days later, the same buyer sent about 500 US dollars directly to the seller’s bank account without opening a new Binance P2P order. At first, the seller says he did not know who sent the money. Their only connection had been through Binance.</p>
         </div>
       </article>
-      <article class="chapter reveal">
-        <img src="assets/scene07_beneficiary_delay.png" alt="Mobile banking beneficiary delay scene" />
-        <div>
-          <p class="eyebrow">Refund delay</p>
-          <h3>Beneficiary waiting period</h3>
-          <p>The seller says the buyer was not an existing beneficiary, so the refund could not be sent immediately through online banking.</p>
+
+      <article class="story-card" id="seg-4" data-seg="4">
+        <div class="story-visual"><img src="assets/scene_chat.png" alt="Buyer message scene"></div>
+        <div class="story-copy">
+          <h3>4. A message changes everything</h3>
+          <p>After one or two hours, the buyer messaged him and said the money was for crypto. The seller says he then understood the problem. There was no new order, no active trade, and no escrow. He told the buyer he would refund the money.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-5" data-seg="5">
+        <div class="story-visual"><img src="assets/scene_beneficiary.png" alt="Beneficiary delay scene"></div>
+        <div class="story-copy">
+          <h3>5. The refund delay</h3>
+          <p>According to the seller, the buyer was not already saved as a bank beneficiary. He says the refund could not happen immediately because UAE banking can require a waiting period before a new beneficiary can receive a transfer.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-6" data-seg="6">
+        <div class="story-visual"><img src="assets/scene_threat.png" alt="Threat message scene"></div>
+        <div class="story-copy">
+          <h3>6. The threat</h3>
+          <p>During that waiting period, the buyer allegedly began threatening him with a case. The seller says he was not refusing to return the money. He says he was trying to return it, but the banking process made an instant transfer difficult.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-7" data-seg="7">
+        <div class="story-visual"><img src="assets/scene_call.png" alt="Police call scene"></div>
+        <div class="story-copy">
+          <h3>7. The call from Dubai Police Station</h3>
+          <p>About one month later, the seller says he received a call from Dubai Police Station. He says he attended quickly, within about one hour, without knowing exactly why he had been called.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-8" data-seg="8">
+        <div class="story-visual"><img src="assets/scene_police.png" alt="Police station interview scene"></div>
+        <div class="story-copy">
+          <h3>8. The station visit</h3>
+          <p>At the station, he says he admitted that the money had entered his account and that he was willing to return it. He did not deny receiving it, and he did not disappear.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-9" data-seg="9">
+        <div class="story-visual"><img src="assets/scene_custody.png" alt="Custody scene"></div>
+        <div class="story-copy">
+          <h3>9. One day in custody</h3>
+          <p>According to the seller, the officer’s duty time was ending. Instead of resolving the matter that day, he says he was placed in custody until the next day. He spent one day in jail.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-10" data-seg="10">
+        <div class="story-visual"><img src="assets/scene_travelban.png" alt="Travel ban scene"></div>
+        <div class="story-copy">
+          <h3>10. The travel ban</h3>
+          <p>The next day, he was released, but with a travel ban. From that point on, what started as a small refund issue became a much larger legal problem.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-11" data-seg="11">
+        <div class="story-visual"><img src="assets/scene_loop.png" alt="Authority loop scene"></div>
+        <div class="story-copy">
+          <h3>11. The loop</h3>
+          <p>After release, the seller says he tried many times to return the money. He says the police told him to go to Public Prosecution, and Public Prosecution told him the case had not yet been transferred and sent him back to the police. He says this loop continued for months.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-12" data-seg="12">
+        <div class="story-visual"><img src="assets/scene_workpermit.png" alt="Work permit refusal scene"></div>
+        <div class="story-copy">
+          <h3>12. Work permit not renewed</h3>
+          <p>According to the seller, his company refused to renew his labour work permit because of the active case. His work life began to collapse while the case remained unresolved.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-13" data-seg="13">
+        <div class="story-visual"><img src="assets/scene_legal.png" alt="Expired identity and legal documents scene"></div>
+        <div class="story-copy">
+          <h3>13. Emirates ID expired</h3>
+          <p>Over time, his Emirates ID expired. He says he could not leave the UAE because of the travel ban, and he could not live normally inside the UAE because his legal documents had expired.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-14" data-seg="14">
+        <div class="story-visual"><img src="assets/scene_court.png" alt="Court delay scene"></div>
+        <div class="story-copy">
+          <h3>14. Court delays</h3>
+          <p>After about one year, the case reached Public Prosecution and then court. He attended hearings, but more than once the judge’s time finished before his case was heard, so new dates were given.</p>
+        </div>
+      </article>
+
+      <article class="story-card" id="seg-15" data-seg="15">
+        <div class="story-visual"><img src="assets/hero_casefile.gif" alt="Final case file animation"></div>
+        <div class="story-copy">
+          <h3>15. The question remains</h3>
+          <p>One and a half years later, the seller says he is still trapped by one payment sent outside a Binance order. Was this a crime, or did one off-platform payment, a banking delay, and a procedural loop turn a 500-dollar refund issue into a life-changing legal crisis?</p>
         </div>
       </article>
     </section>
 
-    <section id="rules" class="section rules panel" style="--panel-img:url('assets/scene02_uae_city_night.png')">
-      <div class="rules-inner reveal">
-        <p class="eyebrow">Rules and context</p>
-        <h2>Regulated does not always mean unrestricted.</h2>
-        <div class="rule-cards">
-          <div class="rule-card">
-            <span>01</span>
-            <h3>Licensed services are specific</h3>
-            <p>VARA’s public register lists licensed Virtual Asset Service Providers and the specific services they are authorized to offer.</p>
-          </div>
-          <div class="rule-card">
-            <span>02</span>
-            <h3>Binance FZE appears as licensed</h3>
-            <p>VARA’s register lists Binance FZE with an active VASP licence, issued on 15 April 2024, and permitted investor categories including retail investors.</p>
-          </div>
-          <div class="rule-card">
-            <span>03</span>
-            <h3>Virtual assets are not legal tender</h3>
-            <p>UAE Central Bank guidance says virtual assets are not acknowledged as legal tender/currency in the UAE; the UAE dirham is the legal tender.</p>
-          </div>
-          <div class="rule-card">
-            <span>04</span>
-            <h3>Off-platform payments are risky</h3>
-            <p>The documentary question is not whether the platform exists. It is what happens when money is sent outside the platform order and outside escrow protection.</p>
-          </div>
+    <section id="context" class="context-section">
+      <div class="section-head">
+        <p class="eyebrow">Rules and Context</p>
+        <h2>Questions about crypto visibility and legal understanding</h2>
+      </div>
+      <div class="context-grid">
+        <div class="context-card">
+          <h3>Why do people think it is allowed?</h3>
+          <p>If a person sees crypto kiosks, public exchange access, and licensed platforms, it can create a strong impression that all small crypto activity is safe. That is part of what makes this story complicated.</p>
+        </div>
+        <div class="context-card">
+          <h3>The USDT question</h3>
+          <p>The story raises a difficult public question: if USDT is alleged to be illegal in a specific case context, why does it appear publicly available through visible channels? Does that create confusion for ordinary people? Is it a trap, or is it a misunderstanding of how platform rules and local law differ?</p>
+        </div>
+        <div class="context-card">
+          <h3>Important legal distinction</h3>
+          <p>A visible platform or machine does not automatically mean every transaction method is legally protected. The key issue in this story is the second payment being sent outside the platform order system.</p>
+        </div>
+        <div class="context-card">
+          <h3>Safe wording</h3>
+          <p>The story should be presented with phrases like “according to the seller,” “the buyer allegedly,” and “the court has not yet made a final decision.”</p>
         </div>
       </div>
     </section>
 
-    <section id="questions" class="section questions">
-      <div class="copy narrow reveal">
-        <p class="eyebrow">Questions raised by the case</p>
-        <h2>The story does not ask the viewer to replace the court. It asks what should be explained.</h2>
+    <section id="questions" class="question-section">
+      <div class="section-head">
+        <p class="eyebrow">Questions</p>
+        <h2>What the viewer is meant to ask</h2>
       </div>
-      <div class="question-wall">
-        <div class="question reveal">
-          <span>Q1</span>
-          <p>If USDT activity is alleged to be illegal in this case, why did the seller see crypto access points and platform services publicly available?</p>
-        </div>
-        <div class="question reveal">
-          <span>Q2</span>
-          <p>Does public availability create a legal trap for casual users who do not understand the difference between regulated platforms, legal tender, and off-platform transfers?</p>
-        </div>
-        <div class="question reveal">
-          <span>Q3</span>
-          <p>If there was no second platform order and no crypto was released, should the issue have remained a refund dispute?</p>
-        </div>
-        <div class="question reveal">
-          <span>Q4</span>
-          <p>If the seller agreed to refund, what clear legal path existed for returning the money once the complaint was filed?</p>
-        </div>
-        <div class="question reveal">
-          <span>Q5</span>
-          <p>How did a $500 payment lead to custody, travel ban, work permit problems, expired Emirates ID, and one and a half years of uncertainty?</p>
-        </div>
+      <div class="question-list">
+        <div class="question-item">If the seller agreed to refund the money, what should have happened next?</div>
+        <div class="question-item">If there was no second platform order and no crypto released, should the case have remained a refund dispute?</div>
+        <div class="question-item">Does public availability of crypto create confusion for casual users who do not understand the difference between platform access and legal protection?</div>
+        <div class="question-item">How did one 500-dollar payment turn into a travel ban, work permit problem, expired Emirates ID, and one and a half years of uncertainty?</div>
       </div>
     </section>
 
-    <section class="section split-section">
-      <figure class="image-card reveal">
-        <img src="assets/scene08_threat_message.png" alt="A phone scene representing an alleged threat message" />
-        <figcaption>The buyer allegedly threatened a case during the refund delay.</figcaption>
-      </figure>
-      <div class="copy reveal">
-        <p class="eyebrow">Pressure point</p>
-        <h2>Before the refund could be completed, the complaint was filed.</h2>
-        <p>The seller says the buyer was not an existing beneficiary, and the refund needed time. During that waiting period, the buyer allegedly warned that he would open a police case.</p>
-        <p class="note">Safer wording: “the buyer allegedly threatened legal action.” Do not state that the buyer committed blackmail unless a court or lawyer confirms it.</p>
-      </div>
-    </section>
+    <footer class="footer">
+      <p>Outside the Order is a real-life inspired story experience built from cinematic visuals and a narrated case-file format. It is not legal advice and it is not a final judgment.</p>
+    </footer>
+  </div>
 
-    <section class="section police-call panel" style="--panel-img:url('assets/scene09_police_call.png')">
-      <div class="hero-overlay"></div>
-      <div class="call-card reveal">
-        <p class="eyebrow">According to the seller</p>
-        <h2>The call from Dubai Police Station</h2>
-        <p>About one month later, the seller says he received a real call from a Dubai Police Station and attended quickly, without knowing exactly why he had been called.</p>
-        <p>At the station, he says he admitted that money had entered his account and said he was willing to return it.</p>
-        <p class="note">Replace this reenactment with a real call record screenshot only if it is legally safe, blurred, and reviewed before publishing.</p>
-      </div>
-    </section>
-
-    <section id="timeline" class="section timeline-section">
-      <div class="copy narrow reveal">
-        <p class="eyebrow">Case timeline</p>
-        <h2>From one transaction to legal limbo.</h2>
-      </div>
-      <div class="timeline">
-        <div class="timeline-item reveal"><span>01</span><h3>First P2P trade completed</h3><p>Order created, payment confirmed, crypto released, no dispute.</p></div>
-        <div class="timeline-item reveal"><span>02</span><h3>Second payment sent outside order</h3><p>About $500 entered the seller’s bank account without a new platform order.</p></div>
-        <div class="timeline-item reveal"><span>03</span><h3>Seller agrees to refund</h3><p>No crypto was released for the second payment, according to the seller.</p></div>
-        <div class="timeline-item reveal"><span>04</span><h3>Beneficiary delay</h3><p>The buyer was not saved as a bank beneficiary, delaying transfer back.</p></div>
-        <div class="timeline-item reveal"><span>05</span><h3>Police complaint</h3><p>The buyer allegedly threatened a case, then filed a complaint.</p></div>
-        <div class="timeline-item reveal"><span>06</span><h3>Police call and station visit</h3><p>The seller says he attended quickly and accepted that the money had entered his account.</p></div>
-        <div class="timeline-item reveal"><span>07</span><h3>One day in custody</h3><p>According to the seller, the officer’s duty time ended and he was kept until the next day.</p></div>
-        <div class="timeline-item reveal"><span>08</span><h3>Travel ban</h3><p>He was released with a travel ban and could not leave the UAE.</p></div>
-        <div class="timeline-item reveal"><span>09</span><h3>Police and prosecution loop</h3><p>The seller says he repeatedly tried to return the money but was sent between authorities.</p></div>
-        <div class="timeline-item reveal"><span>10</span><h3>Work permit not renewed</h3><p>His company allegedly refused renewal because of the active case.</p></div>
-        <div class="timeline-item reveal"><span>11</span><h3>Emirates ID expired</h3><p>His residency situation became another crisis while he could not leave.</p></div>
-        <div class="timeline-item reveal"><span>12</span><h3>Court delays</h3><p>Hearings were delayed more than once when the judge’s time finished before reaching his matter.</p></div>
-      </div>
-    </section>
-
-    <section id="evidence" class="section evidence">
-      <div class="copy reveal">
-        <p class="eyebrow">Evidence wall</p>
-        <h2>What the documentary should show, if legally safe.</h2>
-        <ul class="evidence-list">
-          <li>First completed P2P order screenshot.</li>
-          <li>Proof that no second platform order existed.</li>
-          <li>Bank statement showing the approximately $500 transfer.</li>
-          <li>Chat where buyer says the money was for crypto.</li>
-          <li>Chat where seller agrees to refund.</li>
-          <li>Proof of beneficiary waiting period or failed immediate transfer.</li>
-          <li>Police call record or summons, fully blurred.</li>
-          <li>Travel ban record, work permit refusal, Emirates ID expiry, and court dates.</li>
-        </ul>
-      </div>
-      <div class="masonry reveal">
-        <img src="assets/scene10_police_station_visit.png" alt="Police station interview reenactment" />
-        <img src="assets/scene11_one_day_custody.png" alt="Custody reenactment" />
-        <img src="assets/scene12_travel_ban.png" alt="Travel ban documents reenactment" />
-        <img src="assets/scene13_authority_loop.png" alt="Police and prosecution loop graphic" />
-        <img src="assets/scene14_work_permit_refused.png" alt="Work permit refusal reenactment" />
-        <img src="assets/scene15_expired_id_documents.png" alt="Expired ID documents reenactment" />
-        <img src="assets/scene16_court_delay.png" alt="Court delay reenactment" />
-        <img src="assets/scene17_final_case_file.png" alt="Final case file desk" />
-      </div>
-    </section>
-
-    <section class="section finale panel" style="--panel-img:url('assets/scene17_final_case_file.png')">
-      <div class="hero-overlay"></div>
-      <div class="finale-copy reveal">
-        <p class="eyebrow">Final question</p>
-        <h2>He did not run away. He did not disappear.</h2>
-        <p>He answered the police call. He went to the station. He says he admitted the money had entered his account and agreed to return it.</p>
-        <p>One and a half years later, he says he is still trapped by one payment sent outside the order.</p>
-        <blockquote>Was this a crime, or did one off-platform payment turn a refund issue into a life-changing legal crisis?</blockquote>
-      </div>
-    </section>
-
-    <section class="section sources">
-      <div class="copy narrow reveal">
-        <p class="eyebrow">Public legal context sources</p>
-        <h2>Use these only as background context.</h2>
-        <p>The story itself still needs case documents, lawyer review, and verified evidence before publication.</p>
-        <ol>
-          <li><a href="https://www.vara.ae/en/licenses-and-register/public-register/" target="_blank" rel="noopener">VARA Public Register</a>: licensed VASPs and authorized services.</li>
-          <li><a href="https://www.vara.ae/en/licenses-and-register/public-register/binance-fze/" target="_blank" rel="noopener">VARA Public Register: Binance FZE</a>: active VASP licence details.</li>
-          <li><a href="https://www.centralbank.ae/media/avwlktgy/cbuae-guidance-for-lfis-on-risks-related-to-virtual-assets-and-virtual-assets-providers_final-clean-version1.pdf" target="_blank" rel="noopener">CBUAE Guidance on Virtual Assets Risks</a>: virtual assets and legal tender statement.</li>
-          <li><a href="https://rulebook.centralbank.ae/en/rulebook/payment-token-services-regulation" target="_blank" rel="noopener">CBUAE Payment Token Services Regulation</a>: licensing framework for payment token services.</li>
-        </ol>
-      </div>
-    </section>
-  </main>
-
-  <footer class="site-footer">
-    <p>Outside the Order: A Binance P2P Case File</p>
-    <p>An anonymized documentary-style website. Replace reenactments with verified documents only after legal review.</p>
-  </footer>
+  <div id="subtitleBar" class="subtitle-bar hidden">
+    <span id="subtitleText">Story subtitles will appear here.</span>
+  </div>
 
   <script src="script.js"></script>
 </body>
