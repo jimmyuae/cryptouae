@@ -1,0 +1,1622 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Outside the Order — A Binance P2P Case File</title>
+<link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@300;400;600;700&family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+:root{
+  --bg:#010306;--surface:#040810;--card:#060d18;--border:#111d2a;
+  --accent:#00c8ff;--red:#ff2500;--green:#00ff7f;--yellow:#ffcc00;--purple:#cc00ff;
+  --text:#9ab8cc;--bright:#ddeeff;--muted:#2a4055;
+  --glow-b:rgba(0,200,255,0.18);--glow-r:rgba(255,37,0,0.18);
+}
+html{scroll-behavior:smooth;}
+body{background:var(--bg);color:var(--text);font-family:'Rajdhani',sans-serif;overflow-x:hidden;cursor:crosshair;}
+
+#bgCanvas{position:fixed;top:0;left:0;width:100%;height:100%;z-index:0;pointer-events:none;opacity:0.45;}
+.scanlines{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
+  background:repeating-linear-gradient(0deg,transparent,transparent 2px,rgba(0,0,0,0.22) 2px,rgba(0,0,0,0.22) 4px);}
+.vignette{position:fixed;top:0;left:0;right:0;bottom:0;z-index:1;pointer-events:none;
+  background:radial-gradient(ellipse at center,transparent 38%,rgba(0,0,0,0.75) 100%);}
+.content{position:relative;z-index:10;}
+
+/* ─── HERO ─── */
+.hero{min-height:100vh;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;text-align:center;padding:2rem;position:relative;overflow:hidden;}
+.hero-scene{position:absolute;top:0;left:0;right:0;bottom:0;display:flex;
+  align-items:flex-end;justify-content:center;pointer-events:none;overflow:hidden;}
+
+.hero-eyebrow{font-family:'Share Tech Mono',monospace;font-size:.68rem;
+  letter-spacing:.5rem;color:var(--accent);margin-bottom:2rem;
+  opacity:0;animation:fadeUp 1s .5s forwards;}
+.hero-title{font-family:'Orbitron',monospace;
+  font-size:clamp(2.8rem,10vw,9rem);font-weight:900;line-height:.85;
+  color:var(--bright);opacity:0;animation:fadeUp 1s .8s forwards;position:relative;}
+.glitch-wrap{position:relative;display:inline-block;}
+.glitch-wrap::before,.glitch-wrap::after{content:attr(data-t);position:absolute;top:0;left:0;width:100%;}
+.glitch-wrap::before{color:var(--red);animation:gl1 5s infinite;clip-path:polygon(0 15%,100% 15%,100% 35%,0 35%);}
+.glitch-wrap::after{color:var(--accent);animation:gl2 5s infinite;clip-path:polygon(0 65%,100% 65%,100% 85%,0 85%);}
+@keyframes gl1{0%,88%,100%{opacity:0;transform:none;}89%{opacity:.9;transform:translate(-5px,0);}91%{opacity:.9;transform:translate(5px,0);}93%{opacity:0;}}
+@keyframes gl2{0%,82%,100%{opacity:0;transform:none;}83%{opacity:.9;transform:translate(5px,0);}85%{opacity:.9;transform:translate(-3px,0);}87%{opacity:0;}}
+.title-accent{color:var(--accent);display:block;text-shadow:0 0 60px rgba(0,200,255,.5);}
+.hero-sub{font-family:'Share Tech Mono',monospace;font-size:.75rem;letter-spacing:.45rem;
+  color:var(--muted);margin-top:1.5rem;opacity:0;animation:fadeUp 1s 1.1s forwards;}
+.hero-rule{width:300px;height:1px;background:linear-gradient(90deg,transparent,var(--accent),transparent);
+  margin:2.5rem auto;opacity:0;animation:fadeUp 1s 1.4s forwards;}
+.hero-desc{max-width:680px;font-family:'Share Tech Mono',monospace;font-size:.82rem;
+  color:var(--text);line-height:2;opacity:0;animation:fadeUp 1s 1.7s forwards;}
+.hero-stats{display:flex;gap:3rem;margin-top:2.5rem;flex-wrap:wrap;justify-content:center;
+  opacity:0;animation:fadeUp 1s 2s forwards;}
+.stat{text-align:center;}
+.stat-num{font-family:'Orbitron',monospace;font-size:2rem;font-weight:900;color:var(--red);
+  text-shadow:0 0 20px var(--red);}
+.stat-label{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.3rem;
+  color:var(--muted);margin-top:.3rem;}
+
+.play-btn{margin-top:3rem;padding:1.1rem 3.5rem;background:transparent;
+  border:2px solid var(--accent);color:var(--accent);
+  font-family:'Orbitron',monospace;font-size:.88rem;font-weight:700;
+  letter-spacing:.35rem;cursor:pointer;position:relative;overflow:hidden;
+  transition:all .3s;opacity:0;animation:fadeUp 1s 2.3s forwards;
+  clip-path:polygon(12px 0%,100% 0%,calc(100% - 12px) 100%,0% 100%);}
+.play-btn::before{content:'';position:absolute;top:0;left:-100%;width:100%;height:100%;
+  background:linear-gradient(90deg,transparent,rgba(0,200,255,.25),transparent);transition:left .5s;}
+.play-btn:hover::before{left:100%;}
+.play-btn:hover{background:rgba(0,200,255,.1);box-shadow:0 0 40px var(--glow-b),0 0 80px rgba(0,200,255,.1);transform:scale(1.03);}
+.play-btn .icon{margin-right:.8rem;font-size:1.1rem;}
+
+.scroll-cue{position:absolute;bottom:2.5rem;left:50%;transform:translateX(-50%);
+  display:flex;flex-direction:column;align-items:center;gap:.6rem;
+  opacity:0;animation:fadeIn 1s 3.2s forwards;}
+.scroll-cue span{font-family:'Share Tech Mono',monospace;font-size:.62rem;letter-spacing:.4rem;color:var(--muted);}
+.scroll-arr{width:18px;height:18px;border-right:1px solid var(--muted);border-bottom:1px solid var(--muted);
+  transform:rotate(45deg);animation:bob 2s ease-in-out infinite;}
+@keyframes bob{0%,100%{transform:rotate(45deg) translateY(0);}50%{transform:rotate(45deg) translateY(6px);}}
+
+/* ─── SECTION HEADER ─── */
+.sec-head{max-width:1100px;margin:0 auto;padding:5rem 2rem 2rem;}
+.sec-tag{font-family:'Share Tech Mono',monospace;font-size:.63rem;color:var(--accent);
+  letter-spacing:.35rem;margin-bottom:.5rem;}
+.sec-title{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4vw,2.5rem);
+  font-weight:700;color:var(--bright);border-left:3px solid var(--accent);padding-left:1rem;}
+
+/* ─── CHAPTER GRID ─── */
+.ch-grid{max-width:1100px;margin:0 auto;padding:1rem 2rem 4rem;
+  display:grid;grid-template-columns:repeat(auto-fill,minmax(310px,1fr));gap:1.5rem;}
+.ch-card{background:var(--card);border:1px solid var(--border);padding:2rem;
+  position:relative;overflow:hidden;cursor:pointer;transition:all .4s;
+  clip-path:polygon(0 0,calc(100% - 14px) 0,100% 14px,100% 100%,14px 100%,0 calc(100% - 14px));}
+.ch-card::before{content:'';position:absolute;top:0;left:0;right:0;bottom:0;
+  background:linear-gradient(135deg,var(--glow-b) 0%,transparent 65%);opacity:0;transition:opacity .4s;}
+.ch-card:hover::before{opacity:1;}
+.ch-card:hover{border-color:var(--accent);box-shadow:0 0 35px var(--glow-b);transform:translateY(-4px);}
+.ch-card.danger:hover{border-color:var(--red);box-shadow:0 0 35px var(--glow-r);}
+.ch-card.danger::before{background:linear-gradient(135deg,var(--glow-r) 0%,transparent 65%);}
+.ch-card.critical:hover{border-color:var(--purple);box-shadow:0 0 35px rgba(204,0,255,.18);}
+.ch-card.critical::before{background:linear-gradient(135deg,rgba(204,0,255,.15) 0%,transparent 65%);}
+.ch-num{font-family:'Share Tech Mono',monospace;font-size:.62rem;color:var(--muted);
+  letter-spacing:.3rem;margin-bottom:1.2rem;}
+.ch-icon{width:56px;height:56px;margin-bottom:1.5rem;}
+.ch-lbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.35rem;margin-bottom:.5rem;}
+.ch-title{font-family:'Orbitron',monospace;font-size:.92rem;font-weight:700;
+  color:var(--bright);margin-bottom:1rem;line-height:1.3;}
+.ch-text{font-family:'Share Tech Mono',monospace;font-size:.73rem;color:var(--muted);
+  line-height:1.9;transition:color .4s;}
+.ch-card:hover .ch-text{color:var(--text);}
+.ch-badge{display:inline-block;margin-top:1.2rem;padding:.2rem .8rem;
+  font-family:'Share Tech Mono',monospace;font-size:.58rem;letter-spacing:.25rem;border:1px solid;}
+.b-info{border-color:var(--accent);color:var(--accent);}
+.b-warn{border-color:var(--yellow);color:var(--yellow);}
+.b-danger{border-color:var(--red);color:var(--red);}
+.b-crit{border-color:var(--purple);color:var(--purple);}
+
+/* ─── TIMELINE ─── */
+.tl-section{max-width:780px;margin:0 auto;padding:2rem 2rem 5rem;}
+.timeline{position:relative;padding-left:2.5rem;}
+.timeline::before{content:'';position:absolute;left:4px;top:0;bottom:0;width:1px;
+  background:linear-gradient(180deg,var(--accent),var(--yellow),var(--red),var(--purple));}
+.tl-item{position:relative;padding:1.8rem 0 1.8rem 1.5rem;border-bottom:1px solid var(--border);}
+.tl-item::before{content:'';position:absolute;left:-4px;top:2.2rem;width:9px;height:9px;
+  border-radius:50%;}
+.tl-item.ok::before{background:var(--accent);box-shadow:0 0 10px var(--accent);}
+.tl-item.warn::before{background:var(--yellow);box-shadow:0 0 10px var(--yellow);}
+.tl-item.danger::before{background:var(--red);box-shadow:0 0 10px var(--red);}
+.tl-item.crit::before{background:var(--purple);box-shadow:0 0 10px var(--purple);}
+.tl-lbl{font-family:'Share Tech Mono',monospace;font-size:.58rem;
+  letter-spacing:.3rem;color:var(--muted);margin-bottom:.3rem;}
+.tl-title{font-family:'Orbitron',monospace;font-size:.88rem;color:var(--bright);margin-bottom:.4rem;}
+.tl-text{font-family:'Share Tech Mono',monospace;font-size:.73rem;color:var(--muted);line-height:1.8;}
+
+/* ─── QUESTION ─── */
+.q-section{max-width:900px;margin:2rem auto 4rem;padding:4rem 2rem;
+  text-align:center;border-top:1px solid var(--border);border-bottom:1px solid var(--border);
+  position:relative;}
+.q-section::before{content:'?';position:absolute;font-family:'Orbitron',monospace;
+  font-size:20rem;font-weight:900;color:rgba(0,200,255,.012);
+  top:50%;left:50%;transform:translate(-50%,-50%);z-index:-1;line-height:1;}
+.q-text{font-family:'Orbitron',monospace;font-size:clamp(1rem,2.5vw,1.7rem);
+  color:var(--bright);line-height:1.7;}
+.q-highlight{color:var(--accent);}
+
+/* ─── VERDICT ─── */
+.v-grid{max-width:900px;margin:0 auto 5rem;padding:0 2rem;
+  display:grid;grid-template-columns:1fr 1fr;gap:2rem;}
+.v-card{padding:2.5rem;border:1px solid var(--border);position:relative;overflow:hidden;}
+.v-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;}
+.v-card.prosecution::before{background:var(--red);}
+.v-card.defense::before{background:var(--green);}
+.v-head{font-family:'Orbitron',monospace;font-size:.72rem;letter-spacing:.3rem;margin-bottom:1.5rem;}
+.v-card.prosecution .v-head{color:var(--red);}
+.v-card.defense .v-head{color:var(--green);}
+.v-list{list-style:none;}
+.v-list li{font-family:'Share Tech Mono',monospace;font-size:.73rem;color:var(--muted);
+  line-height:1.8;padding-left:1.2rem;position:relative;margin-bottom:.5rem;}
+.v-list li::before{content:'›';position:absolute;left:0;}
+.v-card.prosecution .v-list li::before{color:var(--red);}
+.v-card.defense .v-list li::before{color:var(--green);}
+
+/* ─── DEEPER QUESTIONS ─── */
+.dq-section{max-width:1100px;margin:0 auto 5rem;padding:0 2rem;}
+.dq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(320px,1fr));gap:1.5rem;margin-top:1.5rem;}
+.dq-card{border:1px solid var(--border);padding:2rem;background:var(--card);position:relative;overflow:hidden;}
+.dq-card::after{content:'';position:absolute;bottom:0;left:0;right:0;height:1px;
+  background:linear-gradient(90deg,transparent,var(--accent),transparent);}
+.dq-num{font-family:'Share Tech Mono',monospace;font-size:2rem;font-weight:700;
+  color:rgba(0,200,255,.08);position:absolute;top:.8rem;right:1.2rem;font-family:'Orbitron',monospace;}
+.dq-title{font-family:'Orbitron',monospace;font-size:.8rem;color:var(--accent);
+  letter-spacing:.2rem;margin-bottom:.8rem;}
+.dq-text{font-family:'Share Tech Mono',monospace;font-size:.73rem;color:var(--muted);line-height:1.9;}
+
+/* ─── FOOTER ─── */
+footer{text-align:center;padding:4rem 2rem;border-top:1px solid var(--border);}
+.ft-status{display:inline-flex;align-items:center;gap:.7rem;margin-bottom:1.5rem;
+  font-family:'Share Tech Mono',monospace;font-size:.65rem;letter-spacing:.3rem;color:var(--muted);}
+.ft-dot{width:7px;height:7px;border-radius:50%;background:var(--red);
+  box-shadow:0 0 10px var(--red);animation:pulse 1.5s ease-in-out infinite;}
+.ft-main{font-family:'Orbitron',monospace;font-size:.78rem;color:var(--muted);letter-spacing:.3rem;margin-bottom:1rem;}
+.ft-accent{color:var(--accent);font-family:'Share Tech Mono',monospace;font-size:.73rem;letter-spacing:.2rem;}
+.ft-rule{width:200px;height:1px;background:linear-gradient(90deg,transparent,var(--border),transparent);margin:2rem auto;}
+
+/* ─── ANIMATIONS ─── */
+@keyframes fadeUp{from{opacity:0;transform:translateY(25px);}to{opacity:1;transform:translateY(0);}}
+@keyframes fadeIn{from{opacity:0;}to{opacity:1;}}
+@keyframes pulse{0%,100%{opacity:1;}50%{opacity:.35;}}
+
+/* ─── STORY MODE ─── */
+#storyMode{position:fixed;top:0;left:0;right:0;bottom:0;background:#000;
+  z-index:9999;display:none;flex-direction:column;}
+#storyMode.active{display:flex;}
+#storyCanvas{position:absolute;top:0;left:0;width:100%;height:100%;}
+.sm-overlay{position:relative;z-index:10;display:flex;
+  flex-direction:column;height:100%;padding:1.8rem 2rem;}
+.sm-top{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:1rem;}
+.sm-info{font-family:'Share Tech Mono',monospace;font-size:.63rem;
+  color:rgba(0,200,255,.6);letter-spacing:.3rem;}
+.sm-close{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.4);
+  font-family:'Orbitron',monospace;font-size:.63rem;padding:.5rem 1.2rem;
+  cursor:pointer;letter-spacing:.2rem;transition:all .3s;}
+.sm-close:hover{border-color:var(--red);color:var(--red);}
+.sm-middle{flex:1;display:flex;flex-direction:column;align-items:center;
+  justify-content:center;gap:1.2rem;padding:1rem 0;}
+.sm-chapter{font-family:'Orbitron',monospace;font-size:clamp(1.4rem,4.5vw,4rem);
+  font-weight:900;color:var(--bright);text-align:center;
+  min-height:60px;transition:all .5s;text-shadow:0 0 50px rgba(0,200,255,.5);}
+.sm-icon-wrap{width:72px;height:72px;opacity:.9;flex-shrink:0;}
+.sm-sub{max-width:820px;width:100%;background:rgba(0,0,0,.78);
+  border-left:3px solid var(--accent);padding:1.5rem 2rem;
+  font-family:'Share Tech Mono',monospace;font-size:clamp(.78rem,1.7vw,.95rem);
+  color:rgba(255,255,255,.92);line-height:2.1;text-align:left;
+  min-height:120px;transition:border-color .5s;max-height:40vh;overflow-y:auto;}
+.cursor{display:inline-block;width:2px;height:1em;background:var(--accent);
+  animation:blink .8s step-end infinite;vertical-align:text-bottom;margin-left:2px;}
+@keyframes blink{0%,100%{opacity:1;}50%{opacity:0;}}
+.sm-bottom{display:flex;flex-direction:column;align-items:center;gap:.9rem;padding-bottom:.5rem;}
+.sm-progress{width:100%;max-width:700px;height:2px;background:rgba(255,255,255,.07);position:relative;}
+.sm-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--green));
+  box-shadow:0 0 12px var(--accent);transition:width .6s ease;}
+.sm-controls{display:flex;gap:.8rem;align-items:center;flex-wrap:wrap;justify-content:center;}
+.sm-btn{background:none;border:1px solid rgba(255,255,255,.15);color:rgba(255,255,255,.5);
+  font-family:'Orbitron',monospace;font-size:.62rem;padding:.55rem 1.4rem;
+  cursor:pointer;letter-spacing:.2rem;transition:all .3s;}
+.sm-btn:hover{border-color:var(--accent);color:var(--accent);}
+.sm-btn.primary{border-color:var(--accent);color:var(--accent);}
+.sm-voice-note{font-family:'Share Tech Mono',monospace;font-size:.58rem;
+  color:rgba(255,255,255,.2);letter-spacing:.2rem;text-align:center;}
+
+
+
+/* FLASH */
+.flash{position:fixed;top:0;left:0;right:0;bottom:0;z-index:99999;pointer-events:none;
+  background:rgba(0,200,255,.06);opacity:0;transition:opacity .08s;}
+.flash.go{opacity:1;}
+
+@media(max-width:700px){
+  .v-grid{grid-template-columns:1fr;}
+  .hero-stats{gap:1.5rem;}
+  .sm-sub{font-size:.78rem;}
+  .sm-chapter{font-size:clamp(1.2rem,5vw,2.5rem);}
+}
+</style>
+</head>
+<body>
+
+<canvas id="bgCanvas"></canvas>
+<div class="scanlines"></div>
+<div class="vignette"></div>
+<div class="flash" id="flash"></div>
+
+<div class="content">
+
+<!-- ═══════════════ HERO ═══════════════ -->
+<section class="hero">
+  <div class="hero-scene">
+    <svg viewBox="0 0 1400 500" xmlns="http://www.w3.org/2000/svg" style="width:100%;opacity:.13;" preserveAspectRatio="xMidYMax slice">
+      <defs>
+        <linearGradient id="gGlow" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#00c8ff" stop-opacity="0"/>
+          <stop offset="50%" stop-color="#00c8ff" stop-opacity="1"/>
+          <stop offset="100%" stop-color="#00c8ff" stop-opacity="0"/>
+        </linearGradient>
+      </defs>
+      <!-- Skyline -->
+      <rect x="0" y="310" width="55" height="190" fill="#00c8ff" opacity=".5"/>
+      <rect x="62" y="250" width="38" height="250" fill="#00c8ff" opacity=".35"/>
+      <rect x="108" y="275" width="52" height="225" fill="#00c8ff" opacity=".45"/>
+      <rect x="168" y="210" width="42" height="290" fill="#00c8ff" opacity=".28"/>
+      <rect x="218" y="260" width="68" height="240" fill="#00c8ff" opacity=".42"/>
+      <rect x="295" y="185" width="32" height="315" fill="#00c8ff" opacity=".35"/>
+      <rect x="336" y="230" width="48" height="270" fill="#00c8ff" opacity=".55"/>
+      <rect x="393" y="155" width="62" height="345" fill="#00c8ff" opacity=".28"/>
+      <rect x="464" y="215" width="38" height="285" fill="#00c8ff" opacity=".45"/>
+      <rect x="511" y="172" width="76" height="328" fill="#00c8ff" opacity=".38"/>
+      <rect x="596" y="125" width="48" height="375" fill="#00c8ff" opacity=".55"/>
+      <rect x="653" y="200" width="42" height="300" fill="#00c8ff" opacity=".28"/>
+      <rect x="704" y="248" width="58" height="252" fill="#00c8ff" opacity=".45"/>
+      <rect x="771" y="178" width="38" height="322" fill="#00c8ff" opacity=".38"/>
+      <rect x="818" y="218" width="68" height="282" fill="#00c8ff" opacity=".55"/>
+      <rect x="895" y="162" width="52" height="338" fill="#00c8ff" opacity=".28"/>
+      <rect x="956" y="202" width="43" height="298" fill="#00c8ff" opacity=".45"/>
+      <rect x="1008" y="242" width="62" height="258" fill="#00c8ff" opacity=".38"/>
+      <rect x="1079" y="190" width="48" height="310" fill="#00c8ff" opacity=".55"/>
+      <rect x="1136" y="258" width="38" height="242" fill="#00c8ff" opacity=".28"/>
+      <rect x="1183" y="218" width="72" height="282" fill="#00c8ff" opacity=".45"/>
+      <rect x="1264" y="178" width="52" height="322" fill="#00c8ff" opacity=".38"/>
+      <rect x="1325" y="195" width="75" height="305" fill="#00c8ff" opacity=".55"/>
+      <!-- Windows -->
+      <rect x="15" y="330" width="6" height="5" fill="#ffcc00" opacity=".5"/>
+      <rect x="25" y="340" width="6" height="5" fill="#ffcc00" opacity=".3"/>
+      <rect x="340" y="250" width="6" height="5" fill="#ffcc00" opacity=".4"/>
+      <rect x="355" y="265" width="6" height="5" fill="#00c8ff" opacity=".5"/>
+      <rect x="600" y="145" width="6" height="5" fill="#ffcc00" opacity=".5"/>
+      <rect x="615" y="158" width="6" height="5" fill="#00c8ff" opacity=".3"/>
+      <rect x="825" y="240" width="6" height="5" fill="#ffcc00" opacity=".4"/>
+      <rect x="1090" y="212" width="6" height="5" fill="#ffcc00" opacity=".5"/>
+      <!-- Ground glow -->
+      <rect x="0" y="492" width="1400" height="8" fill="url(#gGlow)" opacity=".8"/>
+      <line x1="0" y1="490" x2="1400" y2="490" stroke="#00c8ff" stroke-width=".6" opacity=".25"/>
+      <!-- Floating symbols -->
+      <text x="188" y="130" fill="#00c8ff" font-size="32" opacity=".22" font-family="monospace">₿</text>
+      <text x="612" y="72" fill="#00c8ff" font-size="22" opacity=".18" font-family="monospace">₿</text>
+      <text x="980" y="105" fill="#ff2500" font-size="26" opacity=".22" font-family="monospace">₮</text>
+      <text x="860" y="60" fill="#ffcc00" font-size="20" opacity=".18" font-family="monospace">$</text>
+      <text x="430" y="95" fill="#cc00ff" font-size="18" opacity=".15" font-family="monospace">P2P</text>
+      <text x="1180" y="130" fill="#00ff7f" font-size="16" opacity=".15" font-family="monospace">USDT</text>
+    </svg>
+  </div>
+
+  <p class="hero-eyebrow">▸ CASE FILE #UAE-P2P-2024 · CLASSIFIED DOCUMENTATION · REAL EVENTS</p>
+  <h1 class="hero-title">
+    <span class="glitch-wrap" data-t="OUTSIDE">OUTSIDE</span>
+    <span class="title-accent">THE ORDER</span>
+  </h1>
+  <p class="hero-sub">A BINANCE P2P CASE FILE · UNITED ARAB EMIRATES</p>
+  <div class="hero-rule"></div>
+  <p class="hero-desc">The story of how one payment sent outside a Binance order became a criminal case, a travel ban, an expired Emirates ID, and one and a half years of a man's life frozen inside procedural limbo — over five hundred dollars.</p>
+
+  <div class="hero-stats">
+    <div class="stat"><div class="stat-num">$500</div><div class="stat-label">AMOUNT INVOLVED</div></div>
+    <div class="stat"><div class="stat-num">18+</div><div class="stat-label">MONTHS TRAPPED</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--yellow)">0</div><div class="stat-label">CRYPTO RELEASED</div></div>
+    <div class="stat"><div class="stat-num" style="color:var(--purple)">2</div><div class="stat-label">UNHEARD HEARINGS</div></div>
+  </div>
+
+  <button class="play-btn" onclick="startStory()">
+    <span class="icon">▶</span> PLAY THE STORY
+  </button>
+
+  <div class="scroll-cue">
+    <span>SCROLL TO READ</span>
+    <div class="scroll-arr"></div>
+  </div>
+</section>
+
+<!-- ═══════════════ CHAPTERS ═══════════════ -->
+<div class="sec-head">
+  <p class="sec-tag">// CASE DOCUMENTATION — CHAPTER BREAKDOWN</p>
+  <h2 class="sec-title">THE CASE FILE</h2>
+</div>
+<div class="ch-grid" id="chGrid"></div>
+
+<!-- ═══════════════ TIMELINE ═══════════════ -->
+<div class="sec-head">
+  <p class="sec-tag">// CHRONOLOGICAL EVENT LOG</p>
+  <h2 class="sec-title">TIMELINE OF EVENTS</h2>
+</div>
+<div class="tl-section">
+  <div class="timeline" id="tlContainer"></div>
+</div>
+
+<!-- ═══════════════ CENTRAL QUESTION ═══════════════ -->
+<div class="q-section">
+  <p class="sec-tag" style="margin-bottom:1.5rem;">// CENTRAL ISSUE — UNRESOLVED</p>
+  <p class="q-text">Was this <span class="q-highlight">criminal intent</span> —<br>or did one off-platform P2P payment,<br>a banking delay, and a procedural loop<br>turn a <span class="q-highlight">$500 refund issue</span><br>into a life-changing legal crisis?</p>
+</div>
+
+<!-- ═══════════════ VERDICT ═══════════════ -->
+<div class="sec-head">
+  <p class="sec-tag">// CASE POSITIONS — BOTH SIDES</p>
+  <h2 class="sec-title">PROSECUTION vs. DEFENSE</h2>
+</div>
+<div class="v-grid">
+  <div class="v-card prosecution">
+    <p class="v-head">⚖ PROSECUTION POSITION</p>
+    <ul class="v-list">
+      <li>Money was received directly into the seller's bank account</li>
+      <li>No crypto was released for that second payment</li>
+      <li>Refund was not completed before buyer filed the complaint</li>
+      <li>Charges include cryptocurrency-related violations</li>
+      <li>Money laundering allegation is now part of the case</li>
+    </ul>
+  </div>
+  <div class="v-card defense">
+    <p class="v-head">⚖ DEFENSE POSITION</p>
+    <ul class="v-list">
+      <li>No second Binance P2P order was ever opened by the buyer</li>
+      <li>He reported to police within one hour of being called</li>
+      <li>He admitted the payment openly — he did not deny it</li>
+      <li>UAE banking beneficiary rules caused the unavoidable delay</li>
+      <li>He was always willing and ready to return the full amount</li>
+    </ul>
+  </div>
+</div>
+
+<!-- ═══════════════ DEEPER QUESTIONS ═══════════════ -->
+<div class="dq-section">
+  <div class="sec-head" style="padding-left:0;padding-right:0;">
+    <p class="sec-tag">// SYSTEMIC QUESTIONS — NO SIMPLE ANSWERS</p>
+    <h2 class="sec-title">THE BIGGER PICTURE</h2>
+  </div>
+  <div class="dq-grid" id="dqGrid"></div>
+</div>
+
+<!-- ═══════════════ FOOTER ═══════════════ -->
+<footer>
+  <div class="ft-status"><span class="ft-dot"></span>CASE STATUS: ACTIVE · HEARINGS PENDING</div>
+  <p class="ft-main">ONE PAYMENT · ONE AND A HALF YEARS · ONE QUESTION REMAINING</p>
+  <div class="ft-rule"></div>
+  <p class="ft-accent">He did not run. He answered the call. The question remains open.</p>
+</footer>
+</div><!-- /.content -->
+
+<!-- ═══════════════ STORY MODE ═══════════════ -->
+<div id="storyMode">
+  <canvas id="storyCanvas"></canvas>
+  <div class="sm-overlay">
+    <div class="sm-top">
+      <div class="sm-info" id="smInfo">INITIALIZING STORY MODE...</div>
+      <button class="sm-close" onclick="closeStory()">✕ EXIT</button>
+    </div>
+    <div class="sm-middle">
+      <h2 class="sm-chapter" id="smTitle">OUTSIDE THE ORDER</h2>
+      <div class="sm-icon-wrap" id="smIcon"></div>
+      <div class="sm-sub" id="smSub">
+        <span id="smText"></span><span class="cursor" id="smCursor"></span>
+      </div>
+    </div>
+    <div class="sm-bottom">
+      <div class="sm-progress"><div class="sm-fill" id="smFill" style="width:0%"></div></div>
+      <div class="sm-controls">
+        <button class="sm-btn" onclick="prevSeg()">◀ PREV</button>
+        <button class="sm-btn primary" id="pauseBtn" onclick="togglePause()">⏸ PAUSE</button>
+        <button class="sm-btn" onclick="nextSeg()">NEXT ▶</button>
+      </div>
+      <p class="sm-voice-note" id="voiceNote">// ELEVENLABS DIRECT API VOICE READY - DEEP HUMAN NARRATOR</p>
+    </div>
+  </div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// DATA — CHAPTERS
+// ══════════════════════════════════════════════════
+const CHAPTERS = [
+  {num:"01",lbl:"THE MAN",title:"Not a Criminal",icon:"person",color:"#00c8ff",cls:"",badge:"b-info",badgeTxt:"BACKGROUND",
+   text:"He was an ordinary worker in the UAE — not a criminal, not a money launderer, not someone hiding from responsibility. He had no hidden agenda and no criminal operation. He simply lived in a country where cryptocurrency had become publicly visible, and curiosity led him toward it."},
+  {num:"02",lbl:"FIRST CONTACT",title:"The Public Kiosk",icon:"kiosk",color:"#00ff7f",cls:"",badge:"b-info",badgeTxt:"ORIGIN",
+   text:"His first encounter with crypto came from a public kiosk — a machine visible in a public place, available to anyone. To him, this created simple logic: if crypto can be bought openly from a machine in public, then small personal crypto use does not look like something hidden or criminal. That belief would later matter enormously."},
+  {num:"03",lbl:"BINANCE P2P",title:"The First Clean Trade",icon:"trade",color:"#00ff7f",cls:"",badge:"b-info",badgeTxt:"COMPLETED",
+   text:"He used Binance P2P. A buyer created an order on the platform. The buyer sent money. The seller confirmed the payment. The seller released the crypto. The order closed inside the platform. No complaint, no warning, no dispute, no problem. It was one small transaction — completed correctly, fully within the rules."},
+  {num:"04",lbl:"THE PROBLEM",title:"Payment Without an Order",icon:"payment",color:"#ffcc00",cls:"danger",badge:"b-warn",badgeTxt:"WARNING",
+   text:"Days later, the same buyer sent approximately $500 directly to his bank account — without opening a new Binance P2P order. No escrow. No platform protection. No active trade. Money simply arrived. The seller did not immediately recognize who had sent it. There was no Binance order, no record, and no protection for either side."},
+  {num:"05",lbl:"THE MESSAGE",title:"Understanding the Problem",icon:"message",color:"#ff8800",cls:"danger",badge:"b-warn",badgeTxt:"CRITICAL",
+   text:"One to two hours after the money arrived, the buyer messaged him: the money was for crypto. In that moment, the seller understood the problem completely. No order existed. No crypto had been released. No trade was open. He told the buyer immediately: he would return the money."},
+  {num:"06",lbl:"BANKING RULES",title:"The Beneficiary Waiting Period",icon:"bank",color:"#ff8800",cls:"danger",badge:"b-warn",badgeTxt:"BLOCKED",
+   text:"Returning the money was not immediate. The buyer was not saved as a bank beneficiary. UAE banking requires a mandatory waiting period before funds can be transferred to a newly added beneficiary. The seller needed time to add the buyer properly and complete the refund. That brief window became fatal."},
+  {num:"07",lbl:"ESCALATION",title:"Threats Begin",icon:"threat",color:"#ff3c00",cls:"danger",badge:"b-danger",badgeTxt:"DANGER",
+   text:"During the waiting period, the buyer began threatening him: return the money immediately, or a police case would be opened. The seller says he was not refusing. He was trying. But the banking system could not be rushed. The threat was real, and the clock was running out before the refund could be completed."},
+  {num:"08",lbl:"POLICE CALL",title:"Dubai Police Station",icon:"police",color:"#ff3c00",cls:"danger",badge:"b-danger",badgeTxt:"LEGAL",
+   text:"The buyer went to the police before the refund happened. About one month later, a call came from Dubai Police Station. The seller attended within one hour. He did not run. He did not disappear. He acknowledged the payment had entered his account. He said he was willing to return it."},
+  {num:"09",lbl:"CUSTODY",title:"One Night in Jail",icon:"jail",color:"#ff0055",cls:"critical",badge:"b-crit",badgeTxt:"DETAINED",
+   text:"The officer's duty time ended before the refund could be arranged. The seller was placed in custody overnight. One day. It may sound short — but for someone who came to explain a $500 misunderstanding and expected to leave that afternoon, that one night changed everything that followed in the months ahead."},
+  {num:"10",lbl:"TRAVEL BAN + LOOP",title:"Banned. The Procedural Loop Begins.",icon:"ban",color:"#ff0055",cls:"critical",badge:"b-crit",badgeTxt:"TRAPPED",
+   text:"Released the next day — with a travel ban active. He tried to return the money. Police said: go to Public Prosecution. Prosecution said: case not transferred yet, go back to police. This loop continued for months. Police station to Public Prosecution and back again. No authority would accept the refund and close the matter."},
+  {num:"11",lbl:"LIFE FROZEN",title:"Work Permit. Emirates ID. Gone.",icon:"freeze",color:"#cc00ff",cls:"critical",badge:"b-crit",badgeTxt:"COLLAPSED",
+   text:"His company refused to renew his work permit because of the open case. Without the permit, his legal work situation collapsed. His Emirates ID expired. He could not leave the UAE. He could not work. He could not live normally inside the country either. One off-platform payment had become a criminal problem, a work problem, a residence problem, and a financial collapse."},
+  {num:"12",lbl:"THE COURT",title:"Hearings That Don't Happen",icon:"court",color:"#8800ff",cls:"critical",badge:"b-crit",badgeTxt:"ONGOING",
+   text:"After over a year, the case reached court. First hearing: the judge's time ran out before his case was called. New date issued. Second hearing: the same result. One and a half years passed. Charges now include cryptocurrency violations and money laundering. He has not yet been properly heard. The central question — was this criminal intent or a refund that arrived too late — remains unanswered."}
+];
+
+const TIMELINE = [
+  {lbl:"DAY ONE",title:"Normal P2P Trade Completed",
+   text:"First Binance P2P transaction completed normally, fully inside the platform. Order placed, money sent, payment confirmed, crypto released. No disputes, no warnings, no problems.",cls:"ok"},
+  {lbl:"DAYS LATER",title:"$500 Arrives — No Order Placed",
+   text:"The same buyer sends approximately $500 directly to the seller's bank account. No Binance order was created. No escrow protection. No platform involvement. The money arrives without any active trade.",cls:"warn"},
+  {lbl:"+ 1–2 HOURS",title:"Buyer Identifies the Payment",
+   text:"Buyer messages the seller to explain the money was intended for crypto. Seller immediately understands the problem. No order exists. No crypto has been released. Seller agrees to refund the full amount.",cls:"warn"},
+  {lbl:"+ SEVERAL DAYS",title:"Banking Rules Block the Refund",
+   text:"UAE banking's mandatory beneficiary waiting period prevents an instant transfer. The seller is trying to complete the refund. The buyer begins threatening to file a police complaint if the money is not returned immediately.",cls:"warn"},
+  {lbl:"~ ONE MONTH LATER",title:"Dubai Police Calls — Seller Attends Within 1 Hour",
+   text:"Before the refund is completed, the buyer files a police complaint. About a month later, the seller receives a police call. He attends within approximately one hour. He admits the money entered his account and agrees to return it.",cls:"danger"},
+  {lbl:"SAME DAY",title:"Placed in Overnight Custody",
+   text:"The officer's shift ends before the refund is arranged or any resolution is reached. The seller is placed in custody overnight. He came to explain a $500 misunderstanding. He expected to leave the same afternoon.",cls:"danger"},
+  {lbl:"NEXT DAY",title:"Released With Travel Ban Active",
+   text:"Released from custody the following day. A travel ban is now issued and active. He cannot leave the UAE. He believes the next step is simple: return the money and close the matter.",cls:"crit"},
+  {lbl:"MONTHS PASS",title:"The Police ↔ Prosecution Loop",
+   text:"He goes to the police station to return the money. Police send him to Public Prosecution. Prosecution says the case has not been transferred yet and sends him back to the police. This cycle repeats for months. No authority accepts the refund.",cls:"crit"},
+  {lbl:"~ ONE YEAR LATER",title:"Work Permit Not Renewed. Emirates ID Expires.",
+   text:"The company refuses to renew his labour work permit because of the active open case. Without it, his legal work status collapses. His Emirates ID expires. He cannot work, leave, or live normally.",cls:"crit"},
+  {lbl:"~ 1.5 YEARS",title:"Two Court Hearings — Both Unheard",
+   text:"Case transferred to court. First hearing: judge's time ends before his matter is called. Second hearing: same result. Charges now include cryptocurrency violations and money laundering. He has still not been properly heard.",cls:"crit"}
+];
+
+const DEEPER_Q = [
+  {num:"01",title:"THE VISIBILITY PARADOX",text:"If USDT and crypto are considered legally restricted in certain contexts, why do they appear publicly available through machines, licensed exchanges, and visible trading channels? Does public availability create a false sense of universal permission for ordinary users?"},
+  {num:"02",title:"THE KNOWLEDGE GAP",text:"A licensed platform may operate legally while an off-platform payment creates an entirely different legal risk. A public kiosk may make crypto feel normal — but that does not mean every transaction method is automatically protected. Who is responsible for closing this gap?"},
+  {num:"03",title:"THE INTENT QUESTION",text:"His mistake, according to his version, was not hiding money or laundering funds. His mistake was trusting that a small crypto-related transfer could be fixed with a refund. Should intent matter when determining whether this was a crime?"},
+  {num:"04",title:"THE SYSTEM LOOP",text:"Police station to Public Prosecution. Public Prosecution back to the police station. Months of this cycle. The money was returnable. He was willing. But no authority accepted it. If a person cannot find the door to close a case, who holds that responsibility?"},
+  {num:"05",title:"PROPORTIONALITY",text:"A $500 payment sent outside a Binance order resulted in: one night in jail, a travel ban, expired Emirates ID, lost work permit, 18+ months of procedural limbo, and charges including money laundering. Is the proportionality between the act and the consequence the right question?"},
+  {num:"06",title:"THE OPEN QUESTION",text:"Was this criminal intent — or did one off-platform P2P payment, a UAE banking delay, and a procedural loop turn a five-hundred-dollar refund issue into a life-changing legal crisis? The case is still open. The question remains unanswered."}
+];
+
+// ══════════════════════════════════════════════════
+// STORY SEGMENTS — FULL STORY, NO PART MISSED
+// ══════════════════════════════════════════════════
+const SEGMENTS = [
+  {ch:1,title:"OUTSIDE THE ORDER",icon:"person",color:"#00c8ff",
+   text:"Outside the Order. A Binance P2P Case File. This is the story of a man in the UAE who says he was not a criminal, not a money launderer, and not someone trying to escape responsibility. He was an ordinary worker."},
+  {ch:1,title:"THE ORDINARY WORKER",icon:"person",color:"#00c8ff",
+   text:"Like many people, he became curious about cryptocurrency because it appeared to be openly available around him. According to him, his first experience with crypto came from a public crypto machine — a kiosk — the kind of machine a person can see standing in a public place."},
+  {ch:2,title:"THE KIOSK BELIEF",icon:"kiosk",color:"#00ff7f",
+   text:"To him, this created a simple belief: if crypto could be bought openly from a machine, and if platforms were operating publicly, then small personal crypto use did not look like something hidden or criminal."},
+  {ch:3,title:"THE FIRST P2P TRADE",icon:"trade",color:"#00ff7f",
+   text:"Later, he used Binance P2P. The first transaction was normal. A buyer created an order through Binance P2P. The buyer sent the money. The seller checked the payment. The seller released the crypto. The order was completed inside the platform. There was no complaint, no warning, no dispute, and no problem. For the seller, it was just one small crypto transaction."},
+  {ch:4,title:"MONEY ARRIVES",icon:"payment",color:"#ffcc00",
+   text:"But days later, the same buyer sent money directly to the seller's bank account — without opening a new Binance P2P order. The amount was around five hundred US dollars. At first, the seller says he did not know who sent the money. The sender was not someone he knew personally. Their only connection had been through Binance. The seller thought the money may have come from someone else — perhaps a friend or another contact."},
+  {ch:5,title:"THE MESSAGE ARRIVES",icon:"message",color:"#ff8800",
+   text:"After one or two hours, the buyer messaged him. The buyer said the money was for crypto. That was when the seller says he understood the problem. There was no new Binance order. There was no active P2P trade. There was no escrow protection. No crypto had been released for that second payment. The seller told the buyer that he would return the money."},
+  {ch:6,title:"THE BANKING DELAY",icon:"bank",color:"#ff8800",
+   text:"But returning the money was not immediate. According to the seller, the buyer was not saved as a bank beneficiary. In UAE banking, when someone adds a new beneficiary, there can be a waiting period before money can be transferred to that person. The seller says he needed time to add the buyer as a beneficiary and complete the refund properly."},
+  {ch:7,title:"THREATS BEGIN",icon:"threat",color:"#ff3c00",
+   text:"During that waiting period, the buyer allegedly began threatening him. The message was clear in meaning: return the money immediately, or a police case would be opened. The seller says he was not refusing to return the money. He says he was trying to return it. But the banking process and the beneficiary waiting period made an instant transfer difficult."},
+  {ch:8,title:"THE POLICE CALL",icon:"police",color:"#ff3c00",
+   text:"Before the refund could be completed, the buyer went to the police. About one month later, the seller received a call from Dubai Police Station. He says he attended quickly — within about one hour — without knowing exactly why he had been called."},
+  {ch:8,title:"AT THE STATION",icon:"police",color:"#ff3c00",
+   text:"At the police station, he was asked whether he had received money from the complainant. At first, he did not recognize the person — because he knew him only through Binance. Once the situation was explained, the seller accepted that the money had entered his account. He did not deny receiving it. He did not run away. He did not disappear. He said he was willing to return the money."},
+  {ch:8,title:"A PERSONAL CONNECTION",icon:"police",color:"#ff3c00",
+   text:"According to the seller, the police officer handling the matter was known to his brother, or was a friend of his brother. The seller believed this connection might help explain the misunderstanding clearly. But the situation did not end that way."},
+  {ch:9,title:"ONE NIGHT IN JAIL",icon:"jail",color:"#ff0055",
+   text:"According to the seller, the officer's duty time was ending. The refund was not completed that day. Instead of being allowed to return the money the next day from outside, the seller says he was placed in custody until the next day. He spent one day in jail."},
+  {ch:9,title:"THE WEIGHT OF ONE DAY",icon:"jail",color:"#ff0055",
+   text:"One day may sound short. But for someone who believed he had only come to explain a misunderstanding involving about five hundred dollars, it changed everything. He had attended quickly. He had admitted the payment. He had said he was willing to return it. And he ended up in a cell."},
+  {ch:10,title:"TRAVEL BAN ISSUED",icon:"ban",color:"#ff0055",
+   text:"The next day, he was released. But not freely. He was released with a travel ban. After his release, the seller believed the next step was simple: return the money and close the matter. But according to him, that did not happen."},
+  {ch:10,title:"THE LOOP BEGINS",icon:"ban",color:"#ff0055",
+   text:"He went to the police station to return the money. The police told him to go to Public Prosecution. So he went to Public Prosecution. But there, he says he was told that the case had not yet been transferred — and that he should go back to the police station."},
+  {ch:10,title:"THE ENDLESS LOOP",icon:"ban",color:"#ff0055",
+   text:"Police station. Public Prosecution. Police station. Public Prosecution. Again and again. The seller says this loop continued for months. The money was still returnable. He was still willing to return it. But he could not find a clear authority that would accept the refund and close the issue."},
+  {ch:11,title:"LIFE BEGINS TO FREEZE",icon:"freeze",color:"#cc00ff",
+   text:"The case remained open. The travel ban remained active. And his life began to freeze. Because of the travel ban, he could not leave the UAE. But the problem was not only leaving the country. The case also affected his life inside the country."},
+  {ch:11,title:"WORK PERMIT GONE",icon:"freeze",color:"#cc00ff",
+   text:"According to the seller, his company refused to renew his labour work permit because of the active case. Without the labour work permit renewal, his legal work situation collapsed. Over time, his Emirates ID expired."},
+  {ch:11,title:"TOTAL COLLAPSE",icon:"freeze",color:"#cc00ff",
+   text:"Now the case was no longer only about a crypto payment. It became a criminal problem, a work problem, a residence problem, a financial problem, and a human problem. He could not return home because of the travel ban. He could not live normally inside the UAE because his documents had expired. He could not move forward because the case was still open. He could not close the matter because the refund process itself had become trapped inside procedure."},
+  {ch:12,title:"THE COURT HEARINGS",icon:"court",color:"#8800ff",
+   text:"After about one year, the seller finally received a message saying the case had been transferred to Public Prosecution. From there, the case moved to court. He attended the court hearing. But the judge's time finished before his case was heard. A new date was given."},
+  {ch:12,title:"UNHEARD — AGAIN",icon:"court",color:"#8800ff",
+   text:"He attended again after about ten days. Again, the judge's time finished before his matter was heard. Another hearing date was issued. By then, around one and a half years had passed."},
+  {ch:12,title:"THE CHARGES",icon:"court",color:"#8800ff",
+   text:"According to the seller, the case now includes serious allegations — including cryptocurrency-related charges and money laundering. But his position is simple: there was no second Binance P2P order, no crypto was released for the second payment, and he had agreed to return the money."},
+  {ch:12,title:"HIS POSITION",icon:"court",color:"#8800ff",
+   text:"He says he did not steal. He says he did not launder money. He says he did not operate a hidden criminal network. He says he did not disappear after receiving the money. He says he answered the police call, attended the station, admitted the money had entered his account, and tried to return it."},
+  {ch:12,title:"THE CENTRAL ISSUE",icon:"question",color:"#00c8ff",
+   text:"The central issue is not whether money entered his account. He accepts that it did. The real question is intent. Was this a crime? Or was it a misunderstanding that entered the criminal system before it could be resolved?"},
+  {ch:12,title:"THE BIGGER QUESTION",icon:"question",color:"#00c8ff",
+   text:"There is also a bigger question in the background. If USDT is considered illegal in a certain context, why does it appear publicly available through machines, exchanges, or visible trading channels? If ordinary people see crypto being sold openly, does that create confusion? Could it cause casual users to believe that every small transaction is safe?"},
+  {ch:12,title:"THE LEGAL GAP",icon:"question",color:"#00c8ff",
+   text:"Crypto in the UAE exists inside rules, licenses, procedures, and restrictions. But ordinary users may not fully understand where the legal line is. A licensed platform may be allowed to operate in one way, while an off-platform payment may create a different legal risk. A public crypto machine may make crypto feel normal — but that does not mean every transaction method is automatically protected."},
+  {ch:12,title:"WHERE THE STORY BEGINS",icon:"question",color:"#00c8ff",
+   text:"That gap between public availability and legal understanding is where this story begins. The seller's mistake, according to his version, was not hiding money or laundering funds. His mistake was trusting that a small crypto-related transfer could be fixed with a refund."},
+  {ch:12,title:"THE CHAIN REACTION",icon:"question",color:"#ff3c00",
+   text:"But the refund did not happen fast enough. The buyer filed a complaint. The police case began. The travel ban was issued. The work permit was not renewed. The Emirates ID expired. The court hearings were delayed. And one and a half years later, the seller says he is still trapped by one payment sent outside a Binance order."},
+  {ch:12,title:"ONE FINAL QUESTION",icon:"question",color:"#ff3c00",
+   text:"A payment of around five hundred dollars became a case that affected his freedom, his work, his residence, and his future. He did not run away. He did not disappear. He answered the police call. He went to the station. He agreed to return the money. But the case did not end with a refund. It became a case file. And the question remains open: was this criminal intent — or did one off-platform P2P payment, a banking delay, and a procedural loop turn a five-hundred-dollar refund issue into a life-changing legal crisis?"}
+];
+
+// ══════════════════════════════════════════════════
+// SVG ICONS
+// ══════════════════════════════════════════════════
+function buildIcon(t, c) {
+  const icons = {
+    person:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="16" r="10" stroke="${c}" stroke-width="1.5"/>
+      <circle cx="30" cy="16" r="4" fill="${c}" opacity=".18"/>
+      <path d="M10 52c0-11 9-19 20-19s20 8 20 19" stroke="${c}" stroke-width="1.5"/>
+      <line x1="30" y1="33" x2="30" y2="52" stroke="${c}" stroke-width=".5" opacity=".3" stroke-dasharray="2,3"/>
+    </svg>`,
+    kiosk:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="13" y="7" width="34" height="48" rx="2" stroke="${c}" stroke-width="1.5"/>
+      <rect x="17" y="12" width="26" height="17" rx="1" stroke="${c}" stroke-width="1"/>
+      <rect x="17" y="34" width="10" height="10" rx="1" stroke="${c}" stroke-width="1"/>
+      <rect x="32" y="34" width="10" height="10" rx="1" stroke="${c}" stroke-width="1"/>
+      <rect x="17" y="48" width="26" height="4" rx="1" fill="${c}" opacity=".22"/>
+      <text x="24" y="24" fill="${c}" font-size="10" font-family="monospace" opacity=".7">₿</text>
+    </svg>`,
+    trade:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="14" cy="30" r="9" stroke="${c}" stroke-width="1.5"/>
+      <circle cx="46" cy="30" r="9" stroke="${c}" stroke-width="1.5"/>
+      <line x1="23" y1="27" x2="37" y2="27" stroke="${c}" stroke-width="1.5"/>
+      <line x1="37" y1="33" x2="23" y2="33" stroke="${c}" stroke-width="1.5"/>
+      <path d="M33 23l4 4-4 4" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>
+      <path d="M27 37l-4-4 4-4" stroke="${c}" stroke-width="1.5" stroke-linejoin="round"/>
+      <text x="9" y="34" fill="${c}" font-size="9" font-family="monospace">$</text>
+      <text x="39" y="34" fill="${c}" font-size="8" font-family="monospace">₿</text>
+    </svg>`,
+    payment:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="5" y="17" width="46" height="32" rx="2" stroke="${c}" stroke-width="1.5"/>
+      <line x1="5" y1="26" x2="51" y2="26" stroke="${c}" stroke-width="1.5"/>
+      <rect x="11" y="33" width="14" height="8" rx="1" fill="${c}" opacity=".22"/>
+      <path d="M41 38l-9-9M41 29v9h-9" stroke="#ff2500" stroke-width="1.5" stroke-linejoin="round"/>
+      <circle cx="49" cy="12" r="8" fill="#ff2500" opacity=".18" stroke="#ff2500" stroke-width="1.2"/>
+      <text x="45.5" y="16.5" fill="#ff2500" font-size="10" font-family="monospace">!</text>
+    </svg>`,
+    message:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="11" width="40" height="29" rx="3" stroke="${c}" stroke-width="1.5"/>
+      <path d="M8 40l-2 11 14-8" stroke="${c}" stroke-width="1.5" fill="none"/>
+      <line x1="14" y1="22" x2="38" y2="22" stroke="${c}" stroke-width="1"/>
+      <line x1="14" y1="29" x2="28" y2="29" stroke="${c}" stroke-width="1"/>
+      <circle cx="51" cy="13" r="7" fill="#ff2500" stroke="#ff2500" stroke-width="1"/>
+      <text x="47.5" y="17.5" fill="white" font-size="9" font-family="monospace">!</text>
+    </svg>`,
+    bank:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 24h44M30 8l22 16H8L30 8z" stroke="${c}" stroke-width="1.5"/>
+      <line x1="16" y1="24" x2="16" y2="47" stroke="${c}" stroke-width="1.5"/>
+      <line x1="30" y1="24" x2="30" y2="47" stroke="${c}" stroke-width="1.5"/>
+      <line x1="44" y1="24" x2="44" y2="47" stroke="${c}" stroke-width="1.5"/>
+      <line x1="8" y1="47" x2="52" y2="47" stroke="${c}" stroke-width="2"/>
+      <circle cx="49" cy="10" r="8" fill="#ffcc00" opacity=".12" stroke="#ffcc00" stroke-width="1.2"/>
+      <line x1="49" y1="7" x2="49" y2="13" stroke="#ffcc00" stroke-width="1.5"/>
+      <line x1="46" y1="10" x2="52" y2="10" stroke="#ffcc00" stroke-width="1.5"/>
+    </svg>`,
+    threat:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 7L56 51H4L30 7z" stroke="#ff2500" stroke-width="1.5"/>
+      <path d="M30 7L56 51H4L30 7z" fill="#ff2500" opacity=".07"/>
+      <line x1="30" y1="22" x2="30" y2="38" stroke="#ff2500" stroke-width="2.5" stroke-linecap="round"/>
+      <circle cx="30" cy="44" r="3" fill="#ff2500"/>
+    </svg>`,
+    police:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M30 6l23 12v16c0 14-10 23-23 24C17 57 7 48 7 34V18L30 6z" stroke="${c}" stroke-width="1.5"/>
+      <path d="M30 6l23 12v16c0 14-10 23-23 24C17 57 7 48 7 34V18L30 6z" fill="${c}" opacity=".04"/>
+      <path d="M21 32l5 5 12-12" stroke="${c}" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>`,
+    jail:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <rect x="6" y="6" width="48" height="48" stroke="#ff0055" stroke-width="1.5"/>
+      <rect x="6" y="6" width="48" height="48" fill="#ff0055" opacity=".04"/>
+      <line x1="18" y1="6" x2="18" y2="54" stroke="#ff0055" stroke-width="1.5"/>
+      <line x1="30" y1="6" x2="30" y2="54" stroke="#ff0055" stroke-width="1.5"/>
+      <line x1="42" y1="6" x2="42" y2="54" stroke="#ff0055" stroke-width="1.5"/>
+      <rect x="6" y="22" width="48" height="16" fill="#ff0055" opacity=".04"/>
+      <circle cx="12" cy="30" r="4" fill="#ff0055" opacity=".4"/>
+    </svg>`,
+    ban:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="30" r="24" stroke="#ff0055" stroke-width="1.5"/>
+      <line x1="12" y1="12" x2="48" y2="48" stroke="#ff0055" stroke-width="2"/>
+      <path d="M22 17l4-4 8 0 4 4" stroke="rgba(255,255,255,.3)" stroke-width="1" stroke-linejoin="round"/>
+      <rect x="24" y="25" width="12" height="14" rx="1" stroke="rgba(255,255,255,.3)" stroke-width="1"/>
+    </svg>`,
+    freeze:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="30" r="24" stroke="#cc00ff" stroke-width="1.5"/>
+      <line x1="30" y1="6" x2="30" y2="54" stroke="#cc00ff" stroke-width="1.2"/>
+      <line x1="6" y1="30" x2="54" y2="30" stroke="#cc00ff" stroke-width="1.2"/>
+      <line x1="13" y1="13" x2="47" y2="47" stroke="#cc00ff" stroke-width=".6" stroke-dasharray="2,3"/>
+      <line x1="47" y1="13" x2="13" y2="47" stroke="#cc00ff" stroke-width=".6" stroke-dasharray="2,3"/>
+      <circle cx="30" cy="30" r="7" stroke="#cc00ff" stroke-width="1.5"/>
+      <circle cx="30" cy="30" r="3" fill="#cc00ff" opacity=".35"/>
+      <line x1="30" y1="6" x2="26" y2="12" stroke="#cc00ff" stroke-width="1.2"/>
+      <line x1="30" y1="6" x2="34" y2="12" stroke="#cc00ff" stroke-width="1.2"/>
+      <line x1="30" y1="54" x2="26" y2="48" stroke="#cc00ff" stroke-width="1.2"/>
+      <line x1="30" y1="54" x2="34" y2="48" stroke="#cc00ff" stroke-width="1.2"/>
+    </svg>`,
+    court:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M8 50h44M6 23h48" stroke="#8800ff" stroke-width="1.5"/>
+      <path d="M19 8h22v15H19z" stroke="#8800ff" stroke-width="1.5"/>
+      <line x1="14" y1="23" x2="14" y2="50" stroke="#8800ff" stroke-width="1.5"/>
+      <line x1="46" y1="23" x2="46" y2="50" stroke="#8800ff" stroke-width="1.5"/>
+      <line x1="30" y1="23" x2="30" y2="50" stroke="#8800ff" stroke-width="1.5"/>
+      <rect x="25" y="37" width="10" height="13" stroke="#8800ff" stroke-width="1"/>
+      <path d="M37 39l11-8" stroke="#8800ff" stroke-width="2.5" stroke-linecap="round"/>
+    </svg>`,
+    question:`<svg viewBox="0 0 60 60" fill="none" xmlns="http://www.w3.org/2000/svg">
+      <circle cx="30" cy="30" r="24" stroke="#00c8ff" stroke-width="1.5"/>
+      <path d="M20 22c0-5.5 4.5-10 10-10s10 4.5 10 10c0 7.5-10 10-10 14" stroke="#00c8ff" stroke-width="2" stroke-linecap="round"/>
+      <circle cx="30" cy="44" r="3" fill="#00c8ff"/>
+    </svg>`
+  };
+  return icons[t] || icons.question;
+}
+
+// ══════════════════════════════════════════════════
+// RENDER CHAPTERS
+// ══════════════════════════════════════════════════
+function renderChapters() {
+  const g = document.getElementById('chGrid');
+  CHAPTERS.forEach(ch => {
+    const d = document.createElement('div');
+    d.className = `ch-card ${ch.cls}`;
+    d.innerHTML = `
+      <p class="ch-num">CHAPTER ${ch.num}</p>
+      <div class="ch-icon">${buildIcon(ch.icon, ch.color)}</div>
+      <p class="ch-lbl" style="color:${ch.color}">${ch.lbl}</p>
+      <h3 class="ch-title">${ch.title}</h3>
+      <p class="ch-text">${ch.text}</p>
+      <span class="ch-badge ${ch.badge}">${ch.badgeTxt}</span>`;
+    d.addEventListener('click', clickSound);
+    g.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// RENDER TIMELINE
+// ══════════════════════════════════════════════════
+function renderTimeline() {
+  const c = document.getElementById('tlContainer');
+  TIMELINE.forEach(item => {
+    const d = document.createElement('div');
+    d.className = `tl-item ${item.cls}`;
+    d.innerHTML = `<p class="tl-lbl">${item.lbl}</p><h3 class="tl-title">${item.title}</h3><p class="tl-text">${item.text}</p>`;
+    c.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// RENDER DEEPER QUESTIONS
+// ══════════════════════════════════════════════════
+function renderDeeper() {
+  const g = document.getElementById('dqGrid');
+  DEEPER_Q.forEach(q => {
+    const d = document.createElement('div');
+    d.className = 'dq-card';
+    d.innerHTML = `<span class="dq-num">${q.num}</span><p class="dq-title">${q.title}</p><p class="dq-text">${q.text}</p>`;
+    g.appendChild(d);
+  });
+}
+
+// ══════════════════════════════════════════════════
+// BACKGROUND PARTICLE CANVAS
+// ══════════════════════════════════════════════════
+(function initBg() {
+  const cv = document.getElementById('bgCanvas');
+  const cx = cv.getContext('2d');
+  let W, H, pts = [];
+  function resize() { W = cv.width = window.innerWidth; H = cv.height = window.innerHeight; }
+  resize();
+  window.addEventListener('resize', resize);
+  for (let i = 0; i < 90; i++) pts.push({
+    x: Math.random() * 9999, y: Math.random() * 9999,
+    vx: (Math.random() - .5) * .35, vy: (Math.random() - .5) * .35,
+    r: Math.random() * 1.4 + .3, a: Math.random() * .45 + .08,
+    c: Math.random() > .62 ? '#ff2500' : '#00c8ff'
+  });
+  function draw() {
+    cx.clearRect(0, 0, W, H);
+    cx.strokeStyle = 'rgba(0,200,255,0.028)'; cx.lineWidth = 1;
+    for (let x = 0; x < W; x += 70) { cx.beginPath(); cx.moveTo(x, 0); cx.lineTo(x, H); cx.stroke(); }
+    for (let y = 0; y < H; y += 70) { cx.beginPath(); cx.moveTo(0, y); cx.lineTo(W, y); cx.stroke(); }
+    pts.forEach(p => {
+      p.x += p.vx; p.y += p.vy;
+      if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+      if (p.y < 0) p.y = H; if (p.y > H) p.y = 0;
+      cx.beginPath(); cx.arc(p.x % W, p.y % H, p.r, 0, Math.PI * 2);
+      cx.fillStyle = p.c; cx.globalAlpha = p.a; cx.fill(); cx.globalAlpha = 1;
+    });
+    for (let i = 0; i < pts.length; i++) for (let j = i + 1; j < pts.length; j++) {
+      const dx = pts[i].x - pts[j].x, dy = pts[i].y - pts[j].y, dist = Math.hypot(dx, dy);
+      if (dist < 115) {
+        cx.beginPath(); cx.moveTo(pts[i].x % W, pts[i].y % H); cx.lineTo(pts[j].x % W, pts[j].y % H);
+        cx.strokeStyle = `rgba(0,200,255,${.045 * (1 - dist / 115)})`; cx.lineWidth = .4; cx.stroke();
+      }
+    }
+    requestAnimationFrame(draw);
+  }
+  draw();
+})();
+
+// ══════════════════════════════════════════════════
+// STORY CANVAS
+// ══════════════════════════════════════════════════
+let sCv, sCx, sAnimId, sPts = [], sCurColor = '#00c8ff';
+function initStoryCanvas() {
+  sCv = document.getElementById('storyCanvas');
+  sCx = sCv.getContext('2d');
+  sCv.width = window.innerWidth;
+  sCv.height = window.innerHeight;
+  sPts = [];
+  for (let i = 0; i < 130; i++) sPts.push({
+    x: Math.random() * sCv.width, y: Math.random() * sCv.height,
+    vy: Math.random() * .55 + .18, vx: (Math.random() - .5) * .28,
+    r: Math.random() * .8 + .15, a: Math.random() * .32 + .04
+  });
+  if (sAnimId) cancelAnimationFrame(sAnimId);
+  animStory();
+}
+function animStory() {
+  if (!sCx) return;
+  const W = sCv.width, H = sCv.height;
+  sCx.clearRect(0, 0, W, H);
+  const hex = sCurColor;
+  const r = parseInt(hex.slice(1, 3), 16), g = parseInt(hex.slice(3, 5), 16), b = parseInt(hex.slice(5, 7), 16);
+  const grad = sCx.createRadialGradient(W / 2, H / 2, 0, W / 2, H / 2, Math.max(W, H) / 1.3);
+  grad.addColorStop(0, `rgba(${r},${g},${b},0.14)`);
+  grad.addColorStop(1, 'rgba(0,0,0,0)');
+  sCx.fillStyle = grad; sCx.fillRect(0, 0, W, H);
+  sPts.forEach(p => {
+    p.y -= p.vy; p.x += p.vx;
+    if (p.y < 0) { p.y = H; p.x = Math.random() * W; }
+    if (p.x < 0) p.x = W; if (p.x > W) p.x = 0;
+    sCx.beginPath(); sCx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+    sCx.fillStyle = sCurColor; sCx.globalAlpha = p.a; sCx.fill(); sCx.globalAlpha = 1;
+  });
+  for (let y = 0; y < H; y += 4) { sCx.fillStyle = 'rgba(0,0,0,0.09)'; sCx.fillRect(0, y, W, 1); }
+  sAnimId = requestAnimationFrame(animStory);
+}
+
+// ══════════════════════════════════════════════════
+// CINEMATIC AUDIO ENGINE — DARK AMBIENT SCORE
+// ══════════════════════════════════════════════════
+let aCtx, masterGain;
+const musicNodes = {};
+
+function createReverb(duration, decay) {
+  const conv = aCtx.createConvolver();
+  const rate = aCtx.sampleRate, len = rate * duration;
+  const buf = aCtx.createBuffer(2, len, rate);
+  for (let ch = 0; ch < 2; ch++) {
+    const d = buf.getChannelData(ch);
+    for (let i = 0; i < len; i++) d[i] = (Math.random() * 2 - 1) * Math.pow(1 - i / len, decay);
+  }
+  conv.buffer = buf;
+  return conv;
+}
+
+function initAudio() {
+  if (aCtx) return;
+  try {
+    aCtx = new (window.AudioContext || window.webkitAudioContext)();
+
+    // ── Master routing with reverb send ──
+    masterGain = aCtx.createGain(); masterGain.gain.value = 0.14;
+    const dryOut = aCtx.createGain(); dryOut.gain.value = 0.72;
+    const revSend = aCtx.createGain(); revSend.gain.value = 0.28;
+    const rev = createReverb(6, 2.2);
+    masterGain.connect(dryOut); dryOut.connect(aCtx.destination);
+    masterGain.connect(revSend); revSend.connect(rev); rev.connect(aCtx.destination);
+
+    // ── LAYER 1: Deep Sub Pulse (40 Hz heartbeat) ──
+    const subOsc = aCtx.createOscillator(); subOsc.type = 'sine'; subOsc.frequency.value = 40;
+    const subGain = aCtx.createGain(); subGain.gain.value = 0.0;
+    const beatLfo = aCtx.createOscillator(); beatLfo.type = 'sine'; beatLfo.frequency.value = 0.52;
+    const beatDepth = aCtx.createGain(); beatDepth.gain.value = 0.38;
+    beatLfo.connect(beatDepth); beatDepth.connect(subGain.gain);
+    subOsc.connect(subGain); subGain.connect(masterGain);
+    beatLfo.start(); subOsc.start();
+    musicNodes.subGain = subGain;
+    musicNodes.beatLfo = beatLfo;
+    // Fade sub in slowly
+    subGain.gain.setValueAtTime(0, aCtx.currentTime);
+    subGain.gain.linearRampToValueAtTime(0.55, aCtx.currentTime + 5);
+
+    // ── LAYER 2: Dark Ambient Pad (multi-oscillator, detuned) ──
+    const padFilter = aCtx.createBiquadFilter(); padFilter.type = 'lowpass';
+    padFilter.frequency.value = 520; padFilter.Q.value = 1.8;
+    const padGain = aCtx.createGain(); padGain.gain.value = 0.0;
+    const padDefs = [
+      {f:48,   det:0,   t:'sawtooth', v:0.20},
+      {f:48,   det:14,  t:'sawtooth', v:0.14},
+      {f:71.5, det:-8,  t:'triangle', v:0.12},
+      {f:72,   det:6,   t:'triangle', v:0.10},
+      {f:96,   det:0,   t:'sine',     v:0.06},
+      {f:143.5,det:-5,  t:'sine',     v:0.04}
+    ];
+    padDefs.forEach(def => {
+      const o = aCtx.createOscillator(); o.type = def.t;
+      o.frequency.value = def.f; o.detune.value = def.det;
+      const g = aCtx.createGain(); g.gain.value = def.v;
+      // Slow breathing LFO per oscillator
+      const bLfo = aCtx.createOscillator(); bLfo.frequency.value = 0.05 + Math.random()*0.03;
+      const bMod = aCtx.createGain(); bMod.gain.value = def.v * 0.18;
+      bLfo.connect(bMod); bMod.connect(g.gain);
+      bLfo.start(); o.connect(g); g.connect(padFilter);
+      o.start();
+    });
+    padFilter.connect(padGain); padGain.connect(masterGain);
+    padGain.gain.setValueAtTime(0, aCtx.currentTime);
+    padGain.gain.linearRampToValueAtTime(0.55, aCtx.currentTime + 8);
+    musicNodes.padGain = padGain;
+
+    // ── LAYER 3: Tension Strings (mid-range tremolo) ──
+    const strFilter = aCtx.createBiquadFilter(); strFilter.type = 'bandpass';
+    strFilter.frequency.value = 680; strFilter.Q.value = 3.5;
+    const strGain = aCtx.createGain(); strGain.gain.value = 0.0;
+    const tremLfo = aCtx.createOscillator(); tremLfo.type = 'sine'; tremLfo.frequency.value = 6.5;
+    const tremDepth = aCtx.createGain(); tremDepth.gain.value = 0.055;
+    tremLfo.connect(tremDepth); tremDepth.connect(strGain.gain);
+    const str1 = aCtx.createOscillator(); str1.type = 'sawtooth'; str1.frequency.value = 144;
+    const str2 = aCtx.createOscillator(); str2.type = 'sawtooth'; str2.frequency.value = 145.4;
+    const str3 = aCtx.createOscillator(); str3.type = 'sawtooth'; str3.frequency.value = 192;
+    str1.connect(strFilter); str2.connect(strFilter); str3.connect(strFilter);
+    strFilter.connect(strGain); strGain.connect(masterGain);
+    tremLfo.start(); str1.start(); str2.start(); str3.start();
+    musicNodes.strGain = strGain;
+
+    // ── LAYER 4: High Shimmer (fades out as story darkens) ──
+    const shimOsc = aCtx.createOscillator(); shimOsc.type = 'sine'; shimOsc.frequency.value = 528;
+    const shimVib = aCtx.createOscillator(); shimVib.frequency.value = 0.07;
+    const shimMod = aCtx.createGain(); shimMod.gain.value = 10;
+    const shimGain = aCtx.createGain(); shimGain.gain.value = 0.0;
+    shimVib.connect(shimMod); shimMod.connect(shimOsc.frequency);
+    shimOsc.connect(shimGain); shimGain.connect(masterGain);
+    shimVib.start(); shimOsc.start();
+    shimGain.gain.setValueAtTime(0, aCtx.currentTime);
+    shimGain.gain.linearRampToValueAtTime(0.018, aCtx.currentTime + 6);
+    musicNodes.shimGain = shimGain;
+
+    // ── LAYER 5: Dissonance Layer (emerges at danger chapters) ──
+    const disFilter = aCtx.createBiquadFilter(); disFilter.type = 'lowpass';
+    disFilter.frequency.value = 900; disFilter.Q.value = 6;
+    const disGain = aCtx.createGain(); disGain.gain.value = 0.0;
+    const dis1 = aCtx.createOscillator(); dis1.type = 'sawtooth'; dis1.frequency.value = 55;
+    const dis2 = aCtx.createOscillator(); dis2.type = 'sawtooth'; dis2.frequency.value = 58.27; // tritone-ish
+    const dis3 = aCtx.createOscillator(); dis3.type = 'square'; dis3.frequency.value = 36.7;
+    dis1.connect(disFilter); dis2.connect(disFilter); dis3.connect(disFilter);
+    disFilter.connect(disGain); disGain.connect(masterGain);
+    dis1.start(); dis2.start(); dis3.start();
+    musicNodes.disGain = disGain;
+
+    // ── LAYER 6: Sparse Haunting Melody Notes ──
+    musicNodes.melodyIdx = 0;
+    scheduleMelodyNote();
+
+    // ── LAYER 7: Rhythmic Pulse (low thud, emerges at tension) ──
+    musicNodes.pulseInterval = null;
+    musicNodes.pulseActive = false;
+
+  } catch(e) {}
+}
+
+// Haunting melody: Phrygian minor-ish sequence in Hz
+const MELODY = [48.99, 43.65, 41.20, 48.99, 55.00, 51.91, 43.65, 38.89, 48.99, 43.65];
+let melodyTimeout = null;
+
+function scheduleMelodyNote() {
+  if (!aCtx) return;
+  const idx = musicNodes.melodyIdx || 0;
+  const freq = MELODY[idx % MELODY.length];
+  try {
+    const o = aCtx.createOscillator(); o.type = 'sine'; o.frequency.value = freq;
+    const filter = aCtx.createBiquadFilter(); filter.type = 'lowpass'; filter.frequency.value = 1200;
+    const g = aCtx.createGain();
+    const now = aCtx.currentTime;
+    g.gain.setValueAtTime(0, now);
+    g.gain.linearRampToValueAtTime(0.032, now + 0.6);
+    g.gain.exponentialRampToValueAtTime(0.001, now + 3.2);
+    o.connect(filter); filter.connect(g); g.connect(masterGain);
+    o.start(now); o.stop(now + 3.3);
+    musicNodes.melodyIdx = (idx + 1) % MELODY.length;
+  } catch(e) {}
+  const delay = 3800 + Math.random() * 6500;
+  melodyTimeout = setTimeout(scheduleMelodyNote, delay);
+}
+
+function startPulse() {
+  if (musicNodes.pulseActive) return;
+  musicNodes.pulseActive = true;
+  function doPulse() {
+    if (!musicNodes.pulseActive || !aCtx) return;
+    try {
+      const o = aCtx.createOscillator(); o.type = 'sine'; o.frequency.value = 60;
+      const g = aCtx.createGain();
+      const now = aCtx.currentTime;
+      g.gain.setValueAtTime(0, now);
+      g.gain.linearRampToValueAtTime(0.22, now + 0.04);
+      g.gain.exponentialRampToValueAtTime(0.001, now + 0.38);
+      o.connect(g); g.connect(masterGain);
+      o.start(now); o.stop(now + 0.4);
+    } catch(e) {}
+    musicNodes.pulseInterval = setTimeout(doPulse, 1150);
+  }
+  doPulse();
+}
+
+function stopPulse() {
+  musicNodes.pulseActive = false;
+  if (musicNodes.pulseInterval) clearTimeout(musicNodes.pulseInterval);
+}
+
+// Dynamic music intensity: 4 stages driven by chapter number
+function updateMusicIntensity(ch) {
+  if (!aCtx) return;
+  const t = aCtx.currentTime;
+  const ramp = 2.5; // seconds to transition
+
+  if (ch <= 3) {
+    // Stage 1 — Eerie calm, hints of unease
+    musicNodes.subGain.gain.linearRampToValueAtTime(0.50, t + ramp);
+    musicNodes.padGain.gain.linearRampToValueAtTime(0.50, t + ramp);
+    musicNodes.strGain.gain.linearRampToValueAtTime(0.00, t + ramp);
+    musicNodes.shimGain.gain.linearRampToValueAtTime(0.018, t + ramp);
+    musicNodes.disGain.gain.linearRampToValueAtTime(0.00, t + ramp);
+    musicNodes.beatLfo.frequency.value = 0.50;
+    stopPulse();
+  } else if (ch <= 6) {
+    // Stage 2 — Tension rising, hope fading
+    musicNodes.subGain.gain.linearRampToValueAtTime(0.62, t + ramp);
+    musicNodes.padGain.gain.linearRampToValueAtTime(0.55, t + ramp);
+    musicNodes.strGain.gain.linearRampToValueAtTime(0.055, t + ramp);
+    musicNodes.shimGain.gain.linearRampToValueAtTime(0.009, t + ramp);
+    musicNodes.disGain.gain.linearRampToValueAtTime(0.04, t + ramp);
+    musicNodes.beatLfo.frequency.value = 0.62;
+    stopPulse();
+  } else if (ch <= 9) {
+    // Stage 3 — Danger, oppressive weight
+    musicNodes.subGain.gain.linearRampToValueAtTime(0.72, t + ramp);
+    musicNodes.padGain.gain.linearRampToValueAtTime(0.48, t + ramp);
+    musicNodes.strGain.gain.linearRampToValueAtTime(0.10, t + ramp);
+    musicNodes.shimGain.gain.linearRampToValueAtTime(0.003, t + ramp);
+    musicNodes.disGain.gain.linearRampToValueAtTime(0.10, t + ramp);
+    musicNodes.beatLfo.frequency.value = 0.78;
+    startPulse();
+  } else {
+    // Stage 4 — Total collapse, despair
+    musicNodes.subGain.gain.linearRampToValueAtTime(0.80, t + ramp);
+    musicNodes.padGain.gain.linearRampToValueAtTime(0.40, t + ramp);
+    musicNodes.strGain.gain.linearRampToValueAtTime(0.14, t + ramp);
+    musicNodes.shimGain.gain.linearRampToValueAtTime(0.000, t + ramp);
+    musicNodes.disGain.gain.linearRampToValueAtTime(0.18, t + ramp);
+    musicNodes.beatLfo.frequency.value = 0.95;
+    startPulse();
+  }
+}
+
+function clickSound() {
+  try {
+    if (!aCtx) initAudio();
+    const o = aCtx.createOscillator(), g = aCtx.createGain();
+    o.connect(g); g.connect(aCtx.destination);
+    o.frequency.value = 900; o.type = 'square';
+    g.gain.setValueAtTime(.06, aCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, aCtx.currentTime + .1);
+    o.start(); o.stop(aCtx.currentTime + .1);
+  } catch(e) {}
+}
+
+function transitionSound(danger = false) {
+  try {
+    if (!aCtx) initAudio();
+    const o = aCtx.createOscillator(), g = aCtx.createGain();
+    o.connect(g); g.connect(aCtx.destination);
+    o.frequency.setValueAtTime(danger ? 200 : 440, aCtx.currentTime);
+    o.frequency.exponentialRampToValueAtTime(danger ? 100 : 260, aCtx.currentTime + .45);
+    o.type = danger ? 'sawtooth' : 'triangle';
+    g.gain.setValueAtTime(.065, aCtx.currentTime);
+    g.gain.exponentialRampToValueAtTime(.001, aCtx.currentTime + .45);
+    o.start(); o.stop(aCtx.currentTime + .45);
+  } catch(e) {}
+}
+
+function alertSound() {
+  try {
+    if (!aCtx) initAudio();
+    [0, .18, .36].forEach((d, i) => {
+      const o = aCtx.createOscillator(), g = aCtx.createGain();
+      o.connect(g); g.connect(aCtx.destination);
+      o.frequency.value = i % 2 === 0 ? 640 : 420; o.type = 'square';
+      g.gain.setValueAtTime(.045, aCtx.currentTime + d);
+      g.gain.exponentialRampToValueAtTime(.001, aCtx.currentTime + d + .11);
+      o.start(aCtx.currentTime + d); o.stop(aCtx.currentTime + d + .11);
+    });
+  } catch(e) {}
+}
+
+// ══════════════════════════════════════════════════
+// FLASH EFFECT
+// ══════════════════════════════════════════════════
+function doFlash() {
+  const f = document.getElementById('flash');
+  f.classList.add('go');
+  setTimeout(() => f.classList.remove('go'), 110);
+}
+
+// ELEVENLABS VOCAL ENGINE - DEEP HUMAN NARRATOR
+// Personal-use build: API key is embedded as requested.
+// Do not upload this file publicly unless you are comfortable exposing this key.
+const ELEVENLABS_API_KEY = '104ebf650e4230c8351e5c113098cb9c3d7ddbf6d0ec61321a14b401a88f94f0';
+const ELEVENLABS_API_BASE = 'https://api.elevenlabs.io';
+const EL_OUTPUT_FORMAT = 'mp3_44100_128';
+
+// Stable free-plan-friendly models first, then expressive model fallback.
+// The website automatically keeps only models returned by GET /v1/models when that endpoint is available.
+const EL_MODEL_CANDIDATES = [
+  { id: 'eleven_multilingual_v2', label: 'Multilingual v2 stable human' },
+  { id: 'eleven_turbo_v2_5', label: 'Turbo v2.5 natural fast' },
+  { id: 'eleven_flash_v2_5', label: 'Flash v2.5 fast' },
+  { id: 'eleven_v3', label: 'Eleven v3 expressive' }
+];
+
+// Official and common premade voices. The page also loads the account voice library dynamically.
+const EL_FALLBACK_VOICES = [
+  { voice_id: 'JBFqnCBsd6RMkjVDRZzb', name: 'George', labels: { gender: 'male', age: 'middle aged', use_case: 'narration' } },
+  { voice_id: 'pNInz6obpgDQGcFmaJgB', name: 'Adam', labels: { gender: 'male', age: 'middle aged', use_case: 'narration' } },
+  { voice_id: 'VR6AewLTigWG4xSOukaG', name: 'Arnold', labels: { gender: 'male', age: 'middle aged', use_case: 'narration' } },
+  { voice_id: 'TxGEqnHWrfWFTfGW9XjX', name: 'Josh', labels: { gender: 'male', age: 'young', use_case: 'narration' } },
+  { voice_id: 'onwK4e9ZLuTAKqWW03F9', name: 'Daniel', labels: { gender: 'male', age: 'middle aged', use_case: 'news' } }
+];
+
+let elCurrentSource = null;
+let currentAudioUrl = null;
+let elWorkingCombo = null;
+let elLastError = '';
+let elSetupPromise = null;
+let elAvailableVoices = null;
+let elAvailableModels = null;
+let voiceRunId = 0;
+
+function setVoiceStatus(message, kind = 'info') {
+  const note = document.getElementById('voiceNote');
+  if (!note) return;
+  note.textContent = message;
+  note.style.color = kind === 'error' ? 'rgba(255,80,55,.95)' : kind === 'ok' ? 'rgba(0,255,127,.65)' : 'rgba(255,255,255,.32)';
+  if (elLastError) note.title = elLastError;
+}
+
+function summarizeElevenError(message) {
+  const raw = String(message || 'Unknown error');
+  let clean = raw
+    .replace(/104ebf650e4230c8351e5c113098cb9c3d7ddbf6d0ec61321a14b401a88f94f0/g, '[hidden-key]')
+    .replace(/\s+/g, ' ')
+    .trim();
+  try {
+    const m = clean.match(/\{.*\}/);
+    if (m) {
+      const obj = JSON.parse(m[0]);
+      const detail = obj.detail || obj;
+      clean = detail.message || detail.status || detail.code || clean;
+    }
+  } catch(e) {}
+  if (/Failed to fetch|NetworkError|Load failed|CORS/i.test(clean)) {
+    clean = 'Browser blocked the direct ElevenLabs request. Open it through the included local server or host it with a backend proxy.';
+  }
+  return clean.length > 180 ? clean.slice(0, 177) + '...' : clean;
+}
+
+function setMusicDucking(active) {
+  if (!aCtx || !masterGain) return;
+  const t = aCtx.currentTime;
+  try {
+    masterGain.gain.cancelScheduledValues(t);
+    masterGain.gain.setValueAtTime(masterGain.gain.value, t);
+    masterGain.gain.linearRampToValueAtTime(active ? 0.028 : 0.14, t + 0.25);
+  } catch(e) {}
+}
+
+function cleanVoiceText(text) {
+  return String(text || '')
+    .replace(/[—–]/g, ', ')
+    .replace(/[“”]/g, '"')
+    .replace(/[‘’]/g, "'")
+    .replace(/\bP2P\b/g, 'P two P')
+    .replace(/\bUSDT\b/g, 'U S D T')
+    .replace(/\bUAE\b/g, 'U A E')
+    .replace(/\bDubai\b/g, 'Dubai')
+    .replace(/\$500/g, 'five hundred dollars')
+    .replace(/18\+/g, 'more than eighteen')
+    .replace(/1\.5/g, 'one and a half')
+    .replace(/\s+/g, ' ')
+    .trim();
+}
+
+function prepareVoiceText(text, idx, modelId) {
+  const clean = cleanVoiceText(text);
+  // Eleven v3 understands emotion/direction tags. Other models may read tags out loud, so only use them for v3.
+  if (modelId !== 'eleven_v3') return clean;
+
+  const seg = SEGMENTS[idx] || { ch: 1 };
+  let direction = '[calm, serious documentary narration, low voice, slow pacing]';
+  if (seg.ch >= 11) direction = '[grave, slow, quiet intensity, low voice]';
+  else if (seg.ch >= 9) direction = '[tense, cinematic, low voice, restrained emotion]';
+  else if (seg.ch >= 6) direction = '[concerned, measured, documentary tone]';
+  else if (seg.ch >= 4) direction = '[serious, reflective documentary tone]';
+  return `${direction} ${clean}`;
+}
+
+async function directElevenFetch(path, options = {}) {
+  const headers = Object.assign({
+    'xi-api-key': ELEVENLABS_API_KEY,
+    'Accept': options.accept || 'application/json'
+  }, options.headers || {});
+  return await fetch(ELEVENLABS_API_BASE + path, {
+    method: options.method || 'GET',
+    mode: 'cors',
+    headers,
+    body: options.body
+  });
+}
+
+async function proxyElevenFetch(path, options = {}) {
+  // Used only when you open the included local server or host a same-origin backend at /api/elevenlabs.
+  const method = options.method || 'GET';
+  return await fetch(`/api/elevenlabs?method=${encodeURIComponent(method)}&path=${encodeURIComponent(path)}`, {
+    method,
+    headers: {
+      'Content-Type': 'application/json',
+      'Accept': options.accept || (options.headers && options.headers.Accept) || 'application/json'
+    },
+    body: options.body
+  });
+}
+
+async function elFetch(path, options = {}) {
+  let directError = null;
+  let res = null;
+
+  try {
+    res = await directElevenFetch(path, options);
+  } catch(e) {
+    directError = e;
+  }
+
+  // If direct browser fetch is blocked, try the optional local/backend proxy.
+  if ((!res || !res.ok) && typeof location !== 'undefined' && location.protocol.startsWith('http')) {
+    try {
+      const proxyRes = await proxyElevenFetch(path, options);
+      // Ignore proxy 404 because that means the page is not running through the included server.
+      if (proxyRes && proxyRes.status !== 404) res = proxyRes;
+    } catch(proxyError) {
+      if (!directError) directError = proxyError;
+    }
+  }
+
+  if (!res) throw directError || new Error('Could not reach ElevenLabs.');
+
+  if (!res.ok) {
+    let body = '';
+    try { body = await res.text(); } catch(e) {}
+    if (directError && /Failed to fetch|NetworkError|Load failed/i.test(String(directError.message || directError))) {
+      throw new Error(`${directError.message || directError} | Proxy fallback also failed: HTTP ${res.status} ${body}`);
+    }
+    throw new Error(`HTTP ${res.status} ${body}`);
+  }
+  return res;
+}
+
+async function loadElevenSetup() {
+  if (elSetupPromise) return elSetupPromise;
+  elSetupPromise = (async () => {
+    if (!ELEVENLABS_API_KEY || ELEVENLABS_API_KEY.length < 20) {
+      throw new Error('Missing ElevenLabs API key inside the HTML file.');
+    }
+
+    setVoiceStatus('// ELEVENLABS - CHECKING API KEY, MODELS, AND VOICES...');
+
+    const subscriptionResult = await Promise.allSettled([
+      elFetch('/v1/user/subscription')
+    ]);
+    if (subscriptionResult[0].status === 'fulfilled') {
+      try {
+        const sub = await subscriptionResult[0].value.json();
+        if (sub && typeof sub.character_limit !== 'undefined') {
+          const left = Math.max(0, Number(sub.character_limit || 0) - Number(sub.character_count || 0));
+          setVoiceStatus(`// ELEVENLABS KEY OK - ${left.toLocaleString()} CHARACTERS LEFT`, 'ok');
+        }
+      } catch(e) {}
+    }
+
+    const [voicesRes, modelsRes] = await Promise.allSettled([
+      elFetch('/v1/voices?show_legacy=true'),
+      elFetch('/v1/models')
+    ]);
+
+    if (voicesRes.status === 'fulfilled') {
+      try {
+        const data = await voicesRes.value.json();
+        if (Array.isArray(data.voices) && data.voices.length) elAvailableVoices = data.voices;
+      } catch(e) {}
+    }
+
+    if (modelsRes.status === 'fulfilled') {
+      try {
+        const data = await modelsRes.value.json();
+        if (Array.isArray(data) && data.length) {
+          elAvailableModels = data
+            .filter(m => m && m.can_do_text_to_speech !== false)
+            .map(m => m.model_id || m.modelId || m.id)
+            .filter(Boolean);
+        }
+      } catch(e) {}
+    }
+
+    if (voicesRes.status === 'rejected' && modelsRes.status === 'rejected') {
+      // Do not abort. Some browsers/accounts may block list endpoints while TTS still works.
+      elLastError = `${voicesRes.reason && voicesRes.reason.message ? voicesRes.reason.message : voicesRes.reason}`;
+      console.warn('ElevenLabs setup warning:', elLastError);
+    }
+
+    return true;
+  })();
+  return elSetupPromise;
+}
+
+function scoreVoice(v) {
+  const name = String(v.name || '').toLowerCase();
+  const labels = v.labels || {};
+  const flatLabels = Object.values(labels).join(' ').toLowerCase();
+  const desc = String(v.description || v.preview_url || '').toLowerCase();
+  const hay = `${name} ${flatLabels} ${desc}`;
+  let score = 0;
+  if (/george|adam|arnold|daniel|brian|bill|sam|will|clyde|charlie|josh/.test(name)) score += 50;
+  if (/male|man|masculine/.test(hay)) score += 35;
+  if (/middle|old|aged|deep|low|grave|calm|serious/.test(hay)) score += 28;
+  if (/narrat|documentary|story|news|audiobook/.test(hay)) score += 26;
+  if (/american|british|english/.test(hay)) score += 8;
+  if (/female|woman|girl|child|young|high|whisper/.test(hay)) score -= 35;
+  return score;
+}
+
+function getVoiceCandidates() {
+  const source = Array.isArray(elAvailableVoices) && elAvailableVoices.length ? elAvailableVoices : EL_FALLBACK_VOICES;
+  const normalized = source
+    .map(v => ({
+      voice_id: v.voice_id || v.voiceId || v.id,
+      name: v.name || 'Narrator',
+      labels: v.labels || {},
+      description: v.description || '',
+      preview_url: v.preview_url || ''
+    }))
+    .filter(v => v.voice_id);
+  return normalized.sort((a, b) => scoreVoice(b) - scoreVoice(a));
+}
+
+function getModelCandidates() {
+  if (!Array.isArray(elAvailableModels) || !elAvailableModels.length) return EL_MODEL_CANDIDATES;
+  const allowed = new Set(elAvailableModels);
+  const filtered = EL_MODEL_CANDIDATES.filter(m => allowed.has(m.id));
+  return filtered.length ? filtered : EL_MODEL_CANDIDATES;
+}
+
+function buildTtsPayload(text, idx, voice, model) {
+  const previous = idx > 0 ? cleanVoiceText(SEGMENTS[idx - 1].text).slice(-360) : '';
+  const next = idx < SEGMENTS.length - 1 ? cleanVoiceText(SEGMENTS[idx + 1].text).slice(0, 360) : '';
+  return {
+    text: prepareVoiceText(text, idx, model.id),
+    model_id: model.id,
+    language_code: 'en',
+    voice_settings: {
+      stability: model.id === 'eleven_v3' ? 0.36 : 0.41,
+      similarity_boost: 0.82,
+      style: model.id === 'eleven_flash_v2_5' ? 0.22 : 0.46,
+      use_speaker_boost: true,
+      speed: 0.82
+    },
+    previous_text: previous || null,
+    next_text: next || null,
+    apply_text_normalization: 'auto'
+  };
+}
+
+async function requestElevenAudio(text, idx) {
+  await loadElevenSetup();
+
+  const combos = [];
+  if (elWorkingCombo) combos.push(elWorkingCombo);
+
+  const voices = getVoiceCandidates();
+  const models = getModelCandidates();
+  for (const voice of voices.slice(0, 8)) {
+    for (const model of models) {
+      const combo = { voice, model };
+      if (!combos.some(c => c.voice.voice_id === voice.voice_id && c.model.id === model.id)) combos.push(combo);
+    }
+  }
+
+  const errors = [];
+  for (const combo of combos) {
+    const endpoint = `/v1/text-to-speech/${combo.voice.voice_id}?output_format=${EL_OUTPUT_FORMAT}`;
+    const payload = buildTtsPayload(text, idx, combo.voice, combo.model);
+
+    let res;
+    try {
+      res = await elFetch(endpoint, {
+        method: 'POST',
+        accept: 'audio/mpeg',
+        headers: {
+          'Content-Type': 'application/json',
+          'Accept': 'audio/mpeg'
+        },
+        body: JSON.stringify(payload)
+      });
+    } catch(fetchError) {
+      const msg = fetchError && fetchError.message ? fetchError.message : String(fetchError);
+      errors.push(`${combo.voice.name}/${combo.model.id}: ${msg}`);
+      if (/HTTP 401|HTTP 402|HTTP 403|Browser blocked|Failed to fetch|CORS/i.test(msg)) break;
+      continue;
+    }
+
+    const blob = await res.blob();
+    if (!blob || !blob.size) {
+      errors.push(`${combo.voice.name}/${combo.model.id}: empty audio response`);
+      continue;
+    }
+
+    elWorkingCombo = combo;
+    return { blob, combo };
+  }
+
+  throw new Error(errors.join(' | ') || 'No ElevenLabs voice/model combination worked.');
+}
+
+function stopVoice() {
+  voiceRunId++;
+  if (elCurrentSource) {
+    try {
+      if (typeof elCurrentSource.stop === 'function') elCurrentSource.stop(0);
+      else if (typeof elCurrentSource.pause === 'function') {
+        elCurrentSource.pause();
+        elCurrentSource.currentTime = 0;
+      }
+    } catch(e) {}
+    elCurrentSource = null;
+  }
+  if (currentAudioUrl) {
+    try { URL.revokeObjectURL(currentAudioUrl); } catch(e) {}
+    currentAudioUrl = null;
+  }
+  setMusicDucking(false);
+}
+
+async function playBlobThroughWebAudio(blob, runId, onEnd) {
+  if (!aCtx) initAudio();
+  if (aCtx && aCtx.state === 'suspended') await aCtx.resume();
+
+  const arr = await blob.arrayBuffer();
+  let buffer;
+  try {
+    buffer = await aCtx.decodeAudioData(arr.slice(0));
+  } catch(decodeError) {
+    // Fallback to normal HTMLAudio when WebAudio MP3 decoding is unavailable.
+    return playBlobThroughHtmlAudio(blob, runId, onEnd);
+  }
+
+  const source = aCtx.createBufferSource();
+  const gain = aCtx.createGain();
+  gain.gain.value = 1.15;
+  source.buffer = buffer;
+  source.connect(gain);
+  gain.connect(aCtx.destination);
+  elCurrentSource = source;
+  source.onended = () => {
+    if (runId !== voiceRunId) return;
+    elCurrentSource = null;
+    setMusicDucking(false);
+    if (onEnd) onEnd();
+  };
+  setMusicDucking(true);
+  source.start(0);
+}
+
+async function playBlobThroughHtmlAudio(blob, runId, onEnd) {
+  const audio = new Audio();
+  currentAudioUrl = URL.createObjectURL(blob);
+  audio.src = currentAudioUrl;
+  audio.preload = 'auto';
+  audio.volume = 1;
+  audio.playsInline = true;
+  elCurrentSource = audio;
+
+  audio.onended = () => {
+    if (runId !== voiceRunId) return;
+    elCurrentSource = null;
+    if (currentAudioUrl) { try { URL.revokeObjectURL(currentAudioUrl); } catch(e) {} currentAudioUrl = null; }
+    setMusicDucking(false);
+    if (onEnd) onEnd();
+  };
+
+  audio.onerror = () => {
+    throw new Error('Browser downloaded audio but could not play it.');
+  };
+
+  setMusicDucking(true);
+  await audio.play();
+}
+
+async function speakText(text, idx, onEnd) {
+  stopVoice();
+  if (!aCtx) initAudio();
+  if (aCtx && aCtx.state === 'suspended') {
+    try { await aCtx.resume(); } catch(e) {}
+  }
+
+  const runId = ++voiceRunId;
+  setVoiceStatus('// ELEVENLABS - GENERATING DEEP HUMAN VOICE...');
+
+  try {
+    const result = await requestElevenAudio(text, idx);
+    if (runId !== voiceRunId) return;
+    setVoiceStatus(`// ELEVENLABS NARRATING - ${result.combo.voice.name.toUpperCase()} - ${result.combo.model.label.toUpperCase()}`, 'ok');
+    await playBlobThroughWebAudio(result.blob, runId, () => {
+      setVoiceStatus(`// ELEVENLABS READY - ${result.combo.voice.name.toUpperCase()} - ${result.combo.model.label.toUpperCase()}`, 'ok');
+      if (onEnd) onEnd();
+    });
+  } catch(e) {
+    if (runId !== voiceRunId) return;
+    elLastError = e && e.message ? e.message : String(e);
+    window.__lastElevenLabsError = elLastError;
+    console.error('ElevenLabs voice error:', e);
+    setMusicDucking(false);
+    setVoiceStatus(`// VOICE ERROR - ${summarizeElevenError(elLastError)}`, 'error');
+    paused = true;
+    playing = false;
+    const btn = document.getElementById('pauseBtn');
+    if (btn) btn.textContent = '▶ RETRY VOICE';
+  }
+}
+
+
+// ══════════════════════════════════════════════════
+// STORY MODE CONTROLLER
+// ══════════════════════════════════════════════════
+let curSeg = 0, paused = false, playing = false;
+let typeTimer = null;
+
+function startStory() {
+  initAudio();
+  clickSound();
+  document.getElementById('storyMode').classList.add('active');
+  initStoryCanvas();
+  curSeg = 0; paused = false; playing = true;
+  document.getElementById('pauseBtn').textContent = '⏸ PAUSE';
+  playSegment(0);
+}
+
+function closeStory() {
+  clickSound();
+  document.getElementById('storyMode').classList.remove('active');
+  stopVoice()
+  playing = false; paused = false;
+  clearTimeout(typeTimer);
+  stopPulse();
+  if (sAnimId) cancelAnimationFrame(sAnimId);
+  sCx = null;
+}
+
+let segEndTimer = null;
+function playSegment(idx) {
+  clearTimeout(segEndTimer);
+  if (idx >= SEGMENTS.length) {
+    document.getElementById('smText').textContent = 'END OF CASE FILE. THE QUESTION REMAINS OPEN.';
+    document.getElementById('smFill').style.width = '100%';
+    document.getElementById('pauseBtn').textContent = '▶ RESTART';
+    playing = false; return;
+  }
+  curSeg = idx;
+  const seg = SEGMENTS[idx];
+  sCurColor = seg.color;
+
+  // UI
+  document.getElementById('smInfo').textContent =
+    `CHAPTER ${seg.ch} / 12  ·  SEGMENT ${idx + 1} / ${SEGMENTS.length}`;
+  const titleEl = document.getElementById('smTitle');
+  titleEl.textContent = seg.title;
+  titleEl.style.textShadow = `0 0 40px ${seg.color}, 0 0 80px ${seg.color}44`;
+  document.getElementById('smIcon').innerHTML = buildIcon(seg.icon, seg.color);
+  document.getElementById('smSub').style.borderColor = seg.color;
+  const pct = (idx / SEGMENTS.length) * 100;
+  const fillEl = document.getElementById('smFill');
+  fillEl.style.width = pct + '%';
+  fillEl.style.background = `linear-gradient(90deg,${seg.color},#00ff7f)`;
+  fillEl.style.boxShadow = `0 0 12px ${seg.color}`;
+
+  // Sounds + music dynamics
+  updateMusicIntensity(seg.ch);
+  if (seg.ch >= 9) alertSound();
+  else if (seg.ch >= 6) transitionSound(true);
+  else transitionSound(false);
+  doFlash();
+
+  // Typing
+  clearTimeout(typeTimer);
+  const el = document.getElementById('smText');
+  el.textContent = '';
+  let ci = 0;
+  const txt = seg.text;
+  function typeNext() {
+    if (ci < txt.length) { el.textContent += txt[ci]; ci++; typeTimer = setTimeout(typeNext, 16); }
+  }
+  typeNext();
+
+  // Voice
+  speakText(txt, idx, () => {
+    if (!paused && playing) {
+      segEndTimer = setTimeout(() => playSegment(idx + 1), 850);
+    }
+  });
+}
+
+function togglePause() {
+  clickSound();
+  if (paused) {
+    paused = false; playing = true;
+    document.getElementById('pauseBtn').textContent = '⏸ PAUSE';
+    playSegment(curSeg);
+  } else {
+    paused = true; playing = false;
+    document.getElementById('pauseBtn').textContent = '▶ RESUME';
+    clearTimeout(segEndTimer);
+    stopVoice()
+  }
+}
+
+function nextSeg() {
+  clickSound();
+  stopVoice()
+  clearTimeout(typeTimer); clearTimeout(segEndTimer);
+  paused = false; playing = true;
+  document.getElementById('pauseBtn').textContent = '⏸ PAUSE';
+  playSegment(Math.min(curSeg + 1, SEGMENTS.length - 1));
+}
+
+function prevSeg() {
+  clickSound();
+  stopVoice()
+  clearTimeout(typeTimer); clearTimeout(segEndTimer);
+  paused = false; playing = true;
+  document.getElementById('pauseBtn').textContent = '⏸ PAUSE';
+  playSegment(Math.max(curSeg - 1, 0));
+}
+
+// Global click sound on page
+document.addEventListener('click', e => {
+  if (e.target.closest('.play-btn') || e.target.closest('.sm-btn') ||
+      e.target.closest('.sm-close') || e.target.closest('.ch-card')) return;
+  if (aCtx) clickSound();
+}, { passive: true });
+
+// ══════════════════════════════════════════════════
+// INIT
+// ══════════════════════════════════════════════════
+renderChapters();
+renderTimeline();
+renderDeeper();
+</script>
+</body>
+</html>
